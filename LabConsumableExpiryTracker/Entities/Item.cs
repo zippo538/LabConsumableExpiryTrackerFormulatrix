@@ -46,6 +46,9 @@ public sealed class Item
         if (totalQuantity < 0) throw new DomainException("Total quantity cannot be negative.");
         return totalQuantity < MinimumStock;
     }
+    public bool RequiresApproval { get; private set; }
+    public decimal? MaximumAutomaticIssueQuantity { get; private set; }
+    public bool IsControlledMaterial { get; private set; }
 
     public void AddLot(Lot lot)
     {
