@@ -1,4 +1,4 @@
-namespace LabConsumableExpireTracker.Domain.Repositories;
+namespace LabConsumableExpireTracker.Models.Repositories;
 
 public interface IUnitOfWork
 {

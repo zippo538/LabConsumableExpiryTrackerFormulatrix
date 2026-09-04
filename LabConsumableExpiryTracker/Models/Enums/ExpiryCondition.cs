@@ -1,4 +1,4 @@
-namespace LabConsumableExpireTracker.Domain.Enums;
+namespace LabConsumableExpireTracker.Models.Enums;
 
 public enum ExpiryCondition
 {

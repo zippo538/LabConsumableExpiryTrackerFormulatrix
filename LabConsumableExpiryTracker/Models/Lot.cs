@@ -1,7 +1,6 @@
-using LabConsumableExpireTracker.Domain.Common;
-using LabConsumableExpireTracker.Domain.Enums;
+using LabConsumableExpireTracker.Models.Enums;
 
-namespace LabConsumableExpireTracker.Domain.Entities;
+namespace LabConsumableExpireTracker.Models;
 
 public class Lot
 {
@@ -25,21 +24,16 @@ public class Lot
         string lotNumber,
         string? supplierLotNumber,
         DateTimeOffset receivedAt,
-        string? supplierName,
-
-        
+        string? supplierName
         )
     {
-        if (id == Guid.Empty) throw new DomainException("Lot ID is required.");
-        if (itemId == Guid.Empty) throw new DomainException("Item ID is required.");
-        if (string.IsNullOrWhiteSpace(lotNumber)) throw new DomainException("Lot number is required.");
-
         Id = id;
         ItemId = itemId;
         LotNumber = lotNumber.Trim();
         SupplierLotNumber = supplierLotNumber?.Trim();
         ReceivedAt = receivedAt;
         SupplierName = supplierName?.Trim();
+        
     }
 
 

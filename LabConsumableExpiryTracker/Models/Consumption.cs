@@ -1,8 +1,7 @@
-using LabConsumableExpireTracker.Domain.Common;
 
-namespace LabConsumableExpireTracker.Domain.Entities;
+namespace LabConsumableExpireTracker.Models;
 
-public sealed class Consumption
+public  class Consumption
 {
     private Consumption()
     {
@@ -16,10 +15,7 @@ public sealed class Consumption
         DateTimeOffset consumedAt,
         Guid consumedBy)
     {
-        if (id == Guid.Empty || jobId == Guid.Empty || subLotId == Guid.Empty || consumedBy == Guid.Empty)
-            throw new DomainException("Consumption identifiers are required.");
-        if (quantity <= 0) throw new DomainException("Consumption quantity must be greater than zero.");
-
+    
         Id = id;
         JobId = jobId;
         SubLotId = subLotId;

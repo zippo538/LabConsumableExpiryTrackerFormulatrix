@@ -1,8 +1,7 @@
-using LabConsumableExpireTracker.Domain.Common;
 
-namespace LabConsumableExpireTracker.Domain.Entities;
+namespace LabConsumableExpireTracker.Models;
 
-public sealed class Disposal
+public  class Disposal
 {
     private Disposal()
     {
@@ -16,11 +15,6 @@ public sealed class Disposal
         DateTimeOffset disposedAt,
         Guid disposedBy)
     {
-        if (id == Guid.Empty || subLotId == Guid.Empty || disposedBy == Guid.Empty)
-            throw new DomainException("Disposal identifiers are required.");
-        if (quantity <= 0) throw new DomainException("Disposal quantity must be greater than zero.");
-        if (string.IsNullOrWhiteSpace(reason)) throw new DomainException("Disposal reason is required.");
-
         Id = id;
         SubLotId = subLotId;
         Quantity = quantity;
