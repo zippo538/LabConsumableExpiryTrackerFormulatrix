@@ -32,8 +32,7 @@ public class Lot
         LotNumber = lotNumber.Trim();
         SupplierLotNumber = supplierLotNumber?.Trim();
         ReceivedAt = receivedAt;
-        SupplierName = supplierName?.Trim();
-        
+        SupplierName = supplierName?.Trim();   
     }
 
 

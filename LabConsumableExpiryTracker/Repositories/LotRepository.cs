@@ -1,54 +1,73 @@
 using System.Collections.Concurrent;
 using LabConsumableExpireTracker.Models;
+using LabConsumableExpiryTracker.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace LabConsumableExpiryTracker.Repositories;
 
 public class LotRepository : ILotRepository
 {
-    private readonly ConcurrentDictionary<Guid, Lot> _lots = new();
+    private readonly AppDBContext _context;
 
-    public Task<IEnumerable<Lot>> GetAllAsync(CancellationToken ct = default)
+    public LotRepository(AppDBContext context)
     {
-        IEnumerable<Lot> result = _lots.Values
-            .OrderByDescending(l => l.ReceivedAt)
-            .ToList();
-        return Task.FromResult(result);
+        _context = context;
     }
 
-    public Task<Lot?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<IEnumerable<Lot>> GetAllAsync(CancellationToken ct = default)
     {
-        _lots.TryGetValue(id, out var lot);
-        return Task.FromResult(lot);
+        return await _context.Lots
+            .AsNoTracking()
+            .OrderByDescending(lot => lot.ReceivedAt)
+            .ToListAsync(ct);
     }
 
-    public Task<IEnumerable<Lot>> GetByItemIdAsync(Guid itemId, CancellationToken ct = default)
+    public async Task<Lot?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        IEnumerable<Lot> result = _lots.Values
-            .Where(l => l.ItemId == itemId)
-            .OrderByDescending(l => l.ReceivedAt)
-            .ToList();
-        return Task.FromResult(result);
+        return await _context.Lots
+            .FirstOrDefaultAsync(lot => lot.Id == id, ct);
     }
 
-    public Task<Lot> AddAsync(Lot lot, CancellationToken ct = default)
+    public async Task<IEnumerable<Lot>> GetByItemIdAsync(
+        Guid itemId,
+        CancellationToken ct = default)
     {
-        if (!_lots.TryAdd(lot.Id, lot))
-            throw new InvalidOperationException($"Lot with ID '{lot.Id}' already exists.");
-
-        return Task.FromResult(lot);
+        return await _context.Lots
+            .AsNoTracking()
+            .Where(lot => lot.ItemId == itemId)
+            .OrderByDescending(lot => lot.ReceivedAt)
+            .ToListAsync(ct);
     }
 
-    public Task<Lot> UpdateAsync(Lot lot, CancellationToken ct = default)
+    public async Task<Lot> AddAsync(Lot lot, CancellationToken ct = default)
     {
-        if (!_lots.ContainsKey(lot.Id))
-            throw new KeyNotFoundException($"Lot with ID '{lot.Id}' not found.");
+        await _context.Lots.AddAsync(lot, ct);
+        await _context.SaveChangesAsync(ct);
 
-        _lots[lot.Id] = lot;
-        return Task.FromResult(lot);
+        return lot;
     }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken ct = default)
+    public async Task<Lot> UpdateAsync(Lot lot, CancellationToken ct = default)
     {
-        return Task.FromResult(_lots.TryRemove(id, out _));
+        _context.Lots.Update(lot);
+        await _context.SaveChangesAsync(ct);
+
+        return lot;
+    }
+
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        var lot = await _context.Lots
+            .FirstOrDefaultAsync(item => item.Id == id, ct);
+
+        if (lot is null)
+        {
+            return false;
+        }
+
+        _context.Lots.Remove(lot);
+        await _context.SaveChangesAsync(ct);
+
+        return true;
     }
 }

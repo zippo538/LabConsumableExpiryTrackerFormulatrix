@@ -1,55 +1,118 @@
-# AI Agent Skill Profile: Lab Consumable Expiry Tracker & WMS Management
+---
+name: lab-consumable-expiry-tracker
+description: Implement or review the .NET 8 Lab Consumable Expiry Tracker domain, application, persistence, DTO, mapping, and tests according to its canonical Item-Lot model, FEFO rules, expiry blocking, consumption, and disposal requirements. Use for work on this project and keep all inventory tracking directly at Lot level.
+---
 
-## Reference Material
-This skill profile integrates WMS operational logic  with the specific business, architectural, and quality assurance requirements of the Lab Consumable Expiry Tracker.
+# Lab Consumable Expiry Tracker
 
-## 1. Core Objectives & Laboratory Context
-* **Primary Goal:** Prevent silent quality defects and invalid QC test results caused by the use of expired or near-empty laboratory reagents and consumables.
-* **Automated Expiry Block:** The system must automatically block any expired lot from being assigned to a new experimental job or production run.
+## Source of Truth
 
-## 2. Expiry Status Engine & Configurable Thresholds
-* **Lot Status Evaluation:** The system continuously evaluates every lot's status into four categories: Available, Expiring Soon, Low Stock, or Blocked/Expired .
-* **Configurable Thresholds:** Minimum stock rules and expiry thresholds must be configurable per reagent/item type (applying the Open/Closed Principle) to avoid hardcoding and ensure maintainability as new reagents are introduced .
-* **Auditable Consumption Log:** Every time a lot is consumed against a job, the remaining quantity is updated, and the system produces a full auditable history of stock usage and disposals.
+Use the project PDF for product scope and `diagram.mmd` for the canonical domain contract. When prose is ambiguous, keep the implementation within the classes, members, relationships, and enums defined by the diagram. Do not invent additional warehouse concepts.
 
-## 3. Sub-Lot Architecture & Inbound Validation
-* **Sub-Lot Generation:** If a single supplier lot contains items with different expiry dates, they must be split into Internal Lots or Sub-Lots (e.g., `LOT-A-01` and `LOT-A-02`).
-* **GRN Validation:** Upon receipt, warehouse staff are forced by the system to input the Lot Number and Expiry Date. Discrepancies trigger a pop-up and an automated stock split .
-* **Automated Putaway & LPN:** Sub-lots with different expiries are allocated to separate bin locations. Pallets/cartons are tracked via a unique License Plate Number (LPN) barcode binding Item Name, Manufacturing Lot, and Specific Expiry Date.
+## Product Goal
 
-## 4. FEFO Lot Recommendation & Edge Case Handling
-* **FEFO Selection Rules:** The system automatically recommends lots using First-Expired-First-Out (FEFO) in the following order :
-  1. Status is Active .
-  2. Item is not expired .
-  3. Expiry Date is the closest .
-  4. Received Date (ReceivedAt) is the oldest .
-  5. SubLotNumber (as the final tie-breaker for lots with the exact same expiry date) .
-* **Edge Case Mitigation:** The AI must correctly model the state machine for edge cases, including :
-  * A lot that expires mid-job .
-  * A partially consumed lot that later expires .
-  * Handling multiple lots with identical expiry dates .
+Prevent expired or invalid laboratory reagents and consumables from being used in a new job. Track quantity and expiry for every lot, recommend valid stock using FEFO, record consumption and disposal events, and provide reliable low-stock signals.
 
-## 5. Transaction Validations
-The system must reject Consume, Dispose, or Split operations if :
-* Quantity is zero or negative .
-* Quantity exceeds `RemainingQuantity` .
-* Sub-lot is expired (for consumption) .
-* Sub-lot status is Quarantined, ManuallyBlocked, Disposed, or Depleted .
-* A concurrency conflict occurs (mismatched `RowVersion`) .
+Keep the critical expiry, stock, and lot-selection behavior as pure business logic without UI or database dependencies.
 
-## 6. Role Matrix & Responsibilities
-* **Scientist:** Selects items and quantities . Does not manually check expiry or select specific lots .
-* **System (AI Agent):** Validates stock, applies FEFO, automatically checks expiry, blocks expired lots, recommends valid lots, and logs consumption .
-* **Admin Gudang:** Corrects quantities, handles exceptions, verifies physical expiry, and overrides sub-lots if justified .
+## Lot Structure
 
-## 7. Database Schema Knowledge
-* **`m_product`**: `product_id`, `product_name`, `uom` .
-* **`t_lot_hdr`**: `lot_hdr_id`, `supplier_lot_number`, `supplier_id` .
-* **`t_lot_dtl` (Sub-Lot)**: `lot_dtl_id`, `sub_lot_code`, `expiry_date`, `production_date` .
-* **`t_stock_balance`**: Tracks availability linking specifically to `lot_dtl_id` and `bin_location_id` .
+- `Item` owns zero or more `Lot` entities directly.
+- A `Lot` is the smallest tracked inventory unit and contains its own `LotNumber`, `ExpiryDate`, quantities, receipt time, administrative status, and storage location.
+- Different expiry dates must be represented as different `Lot` records.
+- Do not create another inventory layer beneath `Lot` and do not add a lot-splitting operation.
+- Consumption and disposal always reference `LotId` directly.
 
-## 8. Technical Architecture & Quality Assurance
-* **Clean Architecture:** Domain and Application layers must be strictly independent of infrastructure to allow isolated unit testing .
-* **Design Patterns:** System utilizes Repository Pattern and Dependency Injection .
-* **Time Testing:** The system MUST use the `.NET 8 TimeProvider` abstraction for all expiry evaluations . This ensures deterministic, expiry-date-based testing at 100% coverage without mocking the system clock directly .
-* **Code Quality Rules:** CI pipeline must be green on every push, enforced zero compiler warnings (`TreatWarningsAsErrors`), and static analysis warnings kept at 0 .
+## Canonical Domain Model
+
+Preserve these diagram-defined types and responsibilities.
+
+### `Item`
+
+- Properties: `Id`, `Code`, `Name`, `BaseUnit`, `MinimumStock`, `ExpiringSoonDays`.
+- `BaseUnit` uses `UnitOfMeasure`: `Milliliter`, `Gram`, `Unit`, or `Vial`.
+- `IsLowStock(totalQuantity)` compares the aggregate remaining quantity of the item's usable lots with `MinimumStock`.
+
+### `Lot`
+
+- Properties: `Id`, `ItemId`, `LotNumber`, `InitialQuantity`, `RemainingQuantity`, `ExpiryDate`, `ReceivedAt`, `AdministrativeStatus`, `StorageLocation`, and `RowVersion`.
+- `AdministrativeStatus` uses `LotAdministrativeStatus`: `Active`, `Quarantined`, `ManuallyBlocked`, or `Disposed`.
+- `GetExpiryCondition(now, warningDays)` returns `ExpiryCondition`: `Valid`, `ExpiringSoon`, or `Expired`.
+- `IsEligible(now)` determines whether the lot may be selected for new consumption.
+- `Consume(quantity, jobId, now)` deducts stock and creates a `Consumption` record.
+- `Dispose(quantity, reason, now)` deducts stock and creates a `Disposal` record.
+- `Block(reason)` changes the lot to a manually blocked administrative state.
+
+### `Job`
+
+- Properties: `Id`, `JobNumber`, `Status`, `StartedAt`, and `CompletedAt`.
+- `Status` uses `JobStatus`: `Draft`, `InProgress`, `Completed`, or `Cancelled`.
+- `Start(now)` and `Complete(now)` enforce valid job lifecycle transitions.
+
+### Audit Records
+
+- `Consumption`: `Id`, `JobId`, `LotId`, `Quantity`, `ConsumedAt`, `ConsumedBy`.
+- `Disposal`: `Id`, `LotId`, `Quantity`, `Reason`, `DisposedAt`, `DisposedBy`.
+- Consumption belongs to one `Job` and one `Lot`; a lot can have many consumption and disposal records.
+
+### Selection and Persistence Contracts
+
+- `LotAllocation`: `LotId`, `Quantity`.
+- `LotSelectionService.Allocate(lots, requestedQuantity, now)` returns one or more allocations.
+- `ILotRepository`: `GetCandidatesAsync(itemId)`, `GetByIdAsync(id)`, and `AddAsync(lot)`.
+- `IUnitOfWork.SaveChangesAsync()` commits stock changes and audit records atomically.
+- Use `.NET 8 TimeProvider.GetUtcNow()` for every time-dependent decision.
+
+## Status Semantics
+
+Do not collapse every status into one persisted enum. Derive the user-facing state from three separate concerns:
+
+1. Administrative state comes from `Lot.AdministrativeStatus`.
+2. Expiry state comes from `Lot.GetExpiryCondition(...)`.
+3. Low stock comes from `Item.IsLowStock(...)` using total usable quantity for that item.
+
+A lot is eligible only when it is administratively `Active`, has `RemainingQuantity > 0`, and is not expired at the time of allocation or consumption. `ExpiringSoon` is a warning and remains eligible unless the user explicitly changes that rule. An expired lot is automatically excluded from new jobs even when quantity remains; do not require a persisted status mutation merely to represent passage of time.
+
+## FEFO Allocation
+
+For a requested item and quantity:
+
+1. Load candidate lots for the `ItemId`.
+2. Re-evaluate eligibility using the supplied `now` from `TimeProvider`.
+3. Exclude expired, empty, quarantined, manually blocked, and disposed lots.
+4. Sort eligible lots by `ExpiryDate` ascending, then `ReceivedAt` ascending. If both values are identical, use `Id` as a stable deterministic tie-breaker.
+5. Allocate from the first lot until its remaining quantity is exhausted, then continue to the next eligible lot until the request is fulfilled.
+6. Reject the operation without partial persistence when total eligible stock is insufficient.
+
+## Transaction Rules
+
+Reject consumption or disposal when:
+
+- quantity is zero or negative;
+- quantity exceeds `RemainingQuantity`;
+- the target lot is disposed;
+- a concurrency check detects a mismatched `RowVersion`.
+
+Additionally reject consumption when the lot is expired, quarantined, or manually blocked. Re-evaluate expiry at the actual consumption time so a lot selected earlier cannot be consumed after it expires. A previously recorded consumption remains valid audit history if the partially consumed lot expires later.
+
+Perform quantity deductions and creation of `Consumption` or `Disposal` records in one transaction. Never allow `RemainingQuantity` to become negative. Preserve `InitialQuantity`; it is not recalculated after consumption or disposal.
+
+## Architecture and Implementation Rules
+
+- Use Clean Architecture: Domain and Application must not depend on Infrastructure, database, or UI concerns.
+- Use Repository Pattern and Dependency Injection.
+- Keep expiry evaluation and FEFO allocation deterministic and independently unit-testable.
+- For PostgreSQL/EF Core, map the canonical entities directly without adding a header/detail inventory layer.
+- Carry `RowVersion` through update DTOs or concurrency tokens where required, and surface concurrency conflicts instead of silently overwriting data.
+- DTOs and AutoMapper profiles must follow the canonical model and reference inventory through `LotId`.
+- Use decimal-compatible PostgreSQL column types with explicit precision for all quantities.
+
+## Quality Requirements
+
+- Build and test on every push.
+- Enable `TreatWarningsAsErrors`.
+- Track unit-test coverage with Coverlet/Cobertura or an equivalent tool.
+- Target complete coverage of critical domain behavior: expiry boundaries, expiring-soon thresholds, low stock, partial and full consumption, disposal, FEFO across multiple lots, insufficient stock, identical expiry dates, mid-job expiry, and optimistic-concurrency conflicts.
+- Keep static-analysis warnings at zero where achievable.
+
+Before completing a change, verify that every production model, DTO, mapping, repository, service, migration, test, and document keeps `Lot` as the smallest tracked inventory unit.
