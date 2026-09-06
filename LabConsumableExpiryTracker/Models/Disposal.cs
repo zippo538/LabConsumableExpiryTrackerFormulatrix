@@ -1,7 +1,7 @@
 
-namespace LabConsumableExpireTracker.Models;
+namespace LabConsumableExpiryTracker.Models;
 
-public  class Disposal
+public class Disposal
 {
     private Disposal()
     {

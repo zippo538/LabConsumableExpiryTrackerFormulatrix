@@ -1,8 +1,4 @@
-using AutoMapper;
-using LabConsumableExpireTracker.Models;
-using LabConsumableExpiryTracker.Data;
 using LabConsumableExpiryTracker.DTOs;
-using LabConsumableExpiryTracker.Repositories;
 using LabConsumableExpiryTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,28 +18,23 @@ public class LotController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        var response = await _lotService.GetAll(ct);
+        var response = await _lotService.GetAllLot(ct);
         return response.Success ? Ok(response) : BadRequest(response);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        var response = await _lotService.GetById(id, ct);
+        var response = await _lotService.GetByIdLot(id, ct);
         return response.Success ? Ok(response) : NotFound(response);
     }
 
-    [HttpGet("item/{itemId:guid}")]
-    public async Task<IActionResult> GetByItemId(Guid itemId, CancellationToken ct)
-    {
-        var response = await _lotService.GetByItemId(itemId, ct);
-        return response.Success ? Ok(response) : BadRequest(response);
-    }
+
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateLotDTO request, CancellationToken ct)
     {
-        var response = await _lotService.Create(request, ct);
+        var response = await _lotService.CreateLot(request, ct);
 
         if (!response.Success)
         {
@@ -56,15 +47,22 @@ public class LotController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLotDTO request, CancellationToken ct)
     {
-        var response = await _lotService.Update(id, request, ct);
+        var response = await _lotService.UpdateLot(id, request, ct);
         return response.Success ? NoContent() : NotFound(response);
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var response = await _lotService.Delete(id, ct);
+        var response = await _lotService.DeleteLot(id, ct);
         return response.Success ? NoContent() : NotFound(response);
+    }
+    [HttpGet("summary")]
+    public async Task<ActionResult<ApiResponseDTO<IEnumerable<LotSummaryDTO>>>> GetAllSummary(
+    CancellationToken ct = default)
+    {
+    var response = await _lotService.GetAllSummary(ct);
+    return Ok(response);
     }
 }
 

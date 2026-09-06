@@ -1,8 +1,8 @@
-using LabConsumableExpireTracker.Models.Enums;
+using LabConsumableExpiryTracker.Models.Enums;
 
-namespace LabConsumableExpireTracker.Models;
+namespace LabConsumableExpiryTracker.Models;
 
-public  class Item
+public class Item
 {
     private readonly List<Lot> _lots = [];
     public Guid Id { get; private set; }
@@ -24,6 +24,37 @@ public  class Item
     {
         Id = id;
         Code = code.Trim();
+        Name = name.Trim();
+        BaseUnit = baseUnit;
+        MinimumStock = minimumStock;
+        ExpiringSoonDays = expiringSoonDays;
+    }
+
+    public void UpdateDetails(
+        string name,
+        UnitOfMeasure baseUnit,
+        decimal minimumStock,
+        int expiringSoonDays)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException(
+                "Item name is required.",
+                nameof(name));
+        }
+
+        if (minimumStock < 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(minimumStock));
+        }
+
+        if (expiringSoonDays < 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(expiringSoonDays));
+        }
+
         Name = name.Trim();
         BaseUnit = baseUnit;
         MinimumStock = minimumStock;

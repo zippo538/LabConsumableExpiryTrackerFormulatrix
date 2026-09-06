@@ -1,4 +1,4 @@
-namespace LabConsumableExpireTracker.Models.Enums;
+namespace LabConsumableExpiryTracker.Models.Enums;
 
 public enum JobStatus
 {

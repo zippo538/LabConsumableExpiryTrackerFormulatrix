@@ -1,8 +1,8 @@
-using LabConsumableExpireTracker.Models.Enums;
+using LabConsumableExpiryTracker.Models.Enums;
 
-namespace LabConsumableExpireTracker.Models;
+namespace LabConsumableExpiryTracker.Models;
 
-public  class Job
+public class Job
 {
     private readonly List<Consumption> _consumptions = [];
     public Guid Id { get; private set; }
@@ -11,7 +11,7 @@ public  class Job
     public DateTimeOffset? StartedAt { get; private set; }
     public DateTimeOffset? CompletedAt { get; private set; }
     public IReadOnlyCollection<Consumption> Consumptions => _consumptions.AsReadOnly();
-    
+
     public Job(Guid id, string jobNumber)
     {
         Id = id;

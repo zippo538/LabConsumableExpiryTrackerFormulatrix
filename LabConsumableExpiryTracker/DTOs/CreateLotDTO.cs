@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LabConsumableExpiryTracker.Models.Enums;
 
 namespace LabConsumableExpiryTracker.DTOs
 {
@@ -12,8 +13,9 @@ namespace LabConsumableExpiryTracker.DTOs
         public string? SupplierLotNumber { get; set; }
         public string SupplierName { get; set; } = string.Empty;
         public decimal InitialQuantity { get; set; }
-        public DateTime ReceivedAt { get; set; }
         public decimal RemainingQuantity { get; set; }
+        public DateTime ReceivedAt { get; set; }
+        public DateOnly ExpiryDate { get; set; }
         public string StorageLocation { get; set; } = string.Empty;
     }
 }

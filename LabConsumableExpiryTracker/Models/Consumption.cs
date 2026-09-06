@@ -1,7 +1,7 @@
 
-namespace LabConsumableExpireTracker.Models;
+namespace LabConsumableExpiryTracker.Models;
 
-public  class Consumption
+public class Consumption
 {
     private Consumption()
     {
@@ -15,7 +15,7 @@ public  class Consumption
         DateTimeOffset consumedAt,
         Guid consumedBy)
     {
-    
+
         Id = id;
         JobId = jobId;
         SubLotId = subLotId;
