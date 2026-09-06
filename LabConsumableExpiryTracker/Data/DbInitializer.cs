@@ -1,4 +1,3 @@
-using home.mahindra.RiderProjects.LatihanEFCore.LatihanEFCore.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace LabConsumableExpiryTracker.Data

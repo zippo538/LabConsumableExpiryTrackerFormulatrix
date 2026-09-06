@@ -1,4 +1,4 @@
-namespace home.mahindra.RiderProjects.LatihanEFCore.LatihanEFCore.Data
+namespace LabConsumableExpiryTracker.Data
 {
     public interface IDbinitializer
     {

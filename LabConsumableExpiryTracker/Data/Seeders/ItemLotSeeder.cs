@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Bogus;
 using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Models.Enums;
@@ -19,64 +15,83 @@ namespace LabConsumableExpiryTracker.Data.Seeders
         }
         public async Task SeedAsync(CancellationToken ct = default)
         {
-            if (await _dbContext.Items.AnyAsync(ct))
-            {
-                return;
-            }
-
             var faker = new Faker("en");
+
             var units = new[]
             {
-            UnitOfMeasure.Milliliter,
-            UnitOfMeasure.Gram,
-            UnitOfMeasure.Unit,
-            UnitOfMeasure.Vial
-        };
+        UnitOfMeasure.Milliliter,
+        UnitOfMeasure.Gram,
+        UnitOfMeasure.Unit,
+        UnitOfMeasure.Vial
+    };
 
-            var items = Enumerable.Range(1, 10)
-                .Select(index => new Item(
-                    Guid.NewGuid(),
-                    $"ITEM-{index:000}",
-                    faker.Commerce.ProductName(),
-                    units[(index - 1) % units.Length],
-                    faker.Random.Decimal(5, 50),
-                    faker.Random.Int(30, 90)))
-                .ToList();
+            var items = new List<Item>();
 
-            var lots = new List<Lot>();
+            for (var index = 1; index <= 10; index++)
+            {
+                var code = $"ITEM-{index:000}";
+
+                var item = await _dbContext.Items
+                    .FirstOrDefaultAsync(x => x.Code == code, ct);
+
+                if (item is null)
+                {
+                    item = new Item(
+                        Guid.NewGuid(),
+                        code,
+                        faker.Commerce.ProductName(),
+                        units[(index - 1) % units.Length],
+                        faker.Random.Decimal(5, 50),
+                        faker.Random.Int(30, 90));
+
+                    await _dbContext.Items.AddAsync(item, ct);
+                }
+
+                items.Add(item);
+            }
+
+            await _dbContext.SaveChangesAsync(ct);
 
             foreach (var item in items)
             {
+                var hasLots = await _dbContext.Lots
+                    .AnyAsync(lot => lot.ItemId == item.Id, ct);
+
+                if (hasLots)
+                {
+                    continue;
+                }
+
                 var lotCount = faker.Random.Int(2, 4);
 
                 for (var index = 1; index <= lotCount; index++)
                 {
                     var initialQuantity = faker.Random.Decimal(25, 250);
-                    var remainingQuantity = faker.Random.Decimal(0, initialQuantity);
+                    var remainingQuantity = faker.Random.Decimal(
+                        0,
+                        initialQuantity);
 
-                    lots.Add(new Lot(
+                    var lot = new Lot(
                         Guid.NewGuid(),
                         item.Id,
                         $"LOT-{item.Code}-{index:000}",
                         $"SUP-{faker.Random.Int(1000, 9999)}",
-                        DateTimeOffset.UtcNow.AddDays(-faker.Random.Int(1, 180)),
+                        DateTimeOffset.UtcNow.AddDays(
+                            -faker.Random.Int(1, 180)),
                         faker.Company.CompanyName(),
                         initialQuantity,
                         remainingQuantity,
                         DateOnly.FromDateTime(
-                            DateTime.UtcNow.Date.AddDays(faker.Random.Int(30, 730))),
+                            DateTime.UtcNow.Date.AddDays(
+                                faker.Random.Int(30, 730))),
                         $"Rack-{faker.Random.Int(1, 8)}",
-                        LotStatus.Active));
+                        LotStatus.Active);
+
+                    await _dbContext.Lots.AddAsync(lot, ct);
                 }
             }
 
-            await using var transaction = await _dbContext.Database
-                .BeginTransactionAsync(ct);
-
-            await _dbContext.Items.AddRangeAsync(items, ct);
-            await _dbContext.Lots.AddRangeAsync(lots, ct);
             await _dbContext.SaveChangesAsync(ct);
-            await transaction.CommitAsync(ct);
         }
     }
 }
