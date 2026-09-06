@@ -1,18 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LabConsumableExpireTracker.Models;
+using LabConsumableExpiryTracker.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-namespace LabConsumableExpiryTracker.Data
+namespace LabConsumableExpiryTracker.Data.Seeders
 {
-    public class AppDBContext : DbContext
+    public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
-        public AppDBContext(DbContextOptions<AppDBContext> options) : base(options)
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-
+        
     public DbSet<Item> Items => Set<Item>();
     public DbSet<Lot> Lots => Set<Lot>();
     public DbSet<Job> Jobs => Set<Job>();

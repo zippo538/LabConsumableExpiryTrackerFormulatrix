@@ -7,22 +7,29 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentValidation" Version="12.1.1" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.30" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.30" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.29" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+        <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="2.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
         <PackageReference Include="AutoMapper" Version="14.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.25" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.30" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.25">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>
         runtime; build; native; contentfiles; analyzers; buildtransitive
       </IncludeAssets>
       </PackageReference>
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.30" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="LabConsumableExpiryTracker.Enums\" />
       <Folder Include="LabConsumableExpiryTracker.Services\" />
+      <Folder Include="Services\Result\" />
     </ItemGroup>
 
 </Project>

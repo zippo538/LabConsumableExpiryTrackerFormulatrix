@@ -1,6 +1,8 @@
+using LabConsumableExpireTracker.Models;
 using LabConsumableExpireTracker.Models.Enums;
+using LabLabConsumableExpireTracker.Models.Enums;
 
-namespace LabConsumableExpireTracker.Models;
+namespace LabConsumableExpiryTracker.Models;
 
 public  class Item
 {

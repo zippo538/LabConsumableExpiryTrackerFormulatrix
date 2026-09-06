@@ -1,4 +1,4 @@
-namespace LabConsumableExpireTracker.Models.Enums;
+namespace LabLabConsumableExpireTracker.Models.Enums;
 
 public enum UnitOfMeasure
 {

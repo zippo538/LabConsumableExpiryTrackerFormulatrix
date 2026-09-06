@@ -16,7 +16,7 @@ public class Lot
     public DateOnly ExpiryDate { get; private set; }
     public string StorageLocation { get; private set; } = string.Empty;
     public SubLotStatus Status { get; private set; }
-    public byte[] RowVersion { get; private set; } = [];
+    public byte[]? RowVersion { get; private set; } = [];
     
     public Lot(
         Guid id,
