@@ -8,6 +8,7 @@ using LabConsumableExpiryTracker.Repositories.Interfaces;
 using LabConsumableExpiryTracker.Services;
 using LabConsumableExpiryTracker.Services.Interfaces;
 using LabConsumableExpiryTracker.Validators;
+using LabConsumableExpiryTracker.Validators.ItemValidator;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<AppDBContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -26,8 +27,8 @@ builder.Services.AddScoped<ILotService, LotService>();
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<IItemService, ItemService>();
 
-builder.Services.AddScoped<IValidator<CreateItemDTO>, CreateItemValidator>();
-builder.Services.AddScoped<IValidator<UpdateItemDTO>, UpdateItemValidator>();
+builder.Services.AddScoped<IValidator<CreateItemDto>, CreateItemValidator>();
+builder.Services.AddScoped<IValidator<UpdateItemDto>, UpdateItemValidator>();
 
 builder.Services.AddScoped<IDbinitializer, DbInitializer>();
 builder.Services.AddScoped<ItemLotSeeder>();

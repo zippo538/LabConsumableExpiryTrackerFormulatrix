@@ -9,10 +9,10 @@ namespace LabConsumableExpiryTracker.Mappings
     {
         public LotMappingProfile()
         {
-            CreateMap<Lot, LotDTO>();
+            CreateMap<Lot, LotDto>();
 
 
-            CreateMap<CreateLotDTO, Lot>()
+            CreateMap<CreateLotDto, Lot>()
             .ConstructUsing(source => new Lot(
                 Guid.NewGuid(),
                 source.ItemId,
@@ -26,7 +26,7 @@ namespace LabConsumableExpiryTracker.Mappings
                 source.StorageLocation,
                 LotStatus.Active));
 
-            CreateMap<UpdateLotDTO, Lot>();
+            CreateMap<UpdateLotDto, Lot>();
         }
 
 

@@ -7,14 +7,14 @@ public class Lot
 
     public Guid Id { get; private set; }
     public Guid ItemId { get; private set; }
-    public string LotNumber { get; private set; } = string.Empty;
+    public string LotNumber { get; private set; } 
     public string? SupplierLotNumber { get; private set; }
     public DateTimeOffset ReceivedAt { get; private set; }
     public string? SupplierName { get; private set; }
     public decimal InitialQuantity { get; private set; }
     public decimal RemainingQuantity { get; private set; }
     public DateOnly ExpiryDate { get; private set; }
-    public string StorageLocation { get; private set; } = string.Empty;
+    public string StorageLocation { get; private set; } 
     public LotStatus Status { get; private set; }
     public byte[] RowVersion { get; private set; } = [];
 
@@ -43,24 +43,23 @@ public class Lot
         StorageLocation = storageLocation.Trim();
         Status = status;
     }
-    public void UpdateDetails(
-        decimal remainingQuantity,
-        string storageLocation)
+    public void UpdateRemainingQuantity(decimal quantity)
     {
-        if (remainingQuantity < 0)
+        if (quantity <= 0)
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(remainingQuantity),
-                "Remaining quantity cannot be negative.");
+            throw new ArgumentOutOfRangeException(nameof(quantity));
         }
 
-        if (remainingQuantity > InitialQuantity)
+        if (quantity > RemainingQuantity)
         {
-            throw new ArgumentException(
-                "Remaining quantity cannot exceed initial quantity.",
-                nameof(remainingQuantity));
+            throw new InvalidOperationException(
+                "Consumption quantity exceeds remaining quantity.");
         }
 
+        RemainingQuantity -= quantity;
+    }
+    public void UpdateStorageLocation(string storageLocation)
+    {
         if (string.IsNullOrWhiteSpace(storageLocation))
         {
             throw new ArgumentException(
@@ -68,7 +67,6 @@ public class Lot
                 nameof(storageLocation));
         }
 
-        RemainingQuantity = remainingQuantity;
         StorageLocation = storageLocation.Trim();
     }
 }

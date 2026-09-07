@@ -1,4 +1,5 @@
 using AutoMapper;
+using LabConsumableExpiryTracker.Commons.Result;
 using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.DTOs;
 using LabConsumableExpiryTracker.Repositories.Interfaces;
@@ -17,85 +18,83 @@ namespace LabConsumableExpiryTracker.Services
             _mapper = mapper;
         }
 
-        public async Task<ApiResponseDTO<IEnumerable<LotDTO>>> GetAllLot(CancellationToken ct)
+        public async Task<ServiceResult<IEnumerable<LotDto>>> GetAllLot(CancellationToken ct)
         {
             var lots = await _lotRepository.GetAllAsync(ct);
-            var response = _mapper.Map<IEnumerable<LotDTO>>(lots);
-            return ApiResponseDTO<LotDTO>.SuccessResult(
+            var response = _mapper.Map<IEnumerable<LotDto>>(lots);
+            return ServiceResult<LotDto>.SuccessResult(
                 response,
                 "Lots retrieved successfully.");
         }
 
 
 
-        public async Task<ApiResponseDTO<LotDTO>> GetByIdLot(Guid id, CancellationToken ct)
+        public async Task<ServiceResult<LotDto>> GetByIdLot(Guid id, CancellationToken ct)
         {
 
             var lot = await _lotRepository.GetByIdAsync(id, ct);
             if (lot is null)
             {
-                return ApiResponseDTO<LotDTO>.ErrorResult("NotFound");
+                return ServiceResult<LotDto>.ErrorResult("NotFound");
             }
-            var response = _mapper.Map<LotDTO>(lot);
-            return ApiResponseDTO<LotDTO>.SuccessResult(response);
+            var response = _mapper.Map<LotDto>(lot);
+            return ServiceResult<LotDto>.SuccessResult(response);
         }
 
-        public async Task<ApiResponseDTO<LotDTO>> CreateLot(CreateLotDTO createLotDTO, CancellationToken ct)
+        public async Task<ServiceResult<LotDto>> CreateLot(CreateLotDto createLotDto, CancellationToken ct)
         {
-            var lot = _mapper.Map<Lot>(createLotDTO);
+            var lot = _mapper.Map<Lot>(createLotDto);
             var created = await _lotRepository.AddAsync(lot, ct);
-            var response = _mapper.Map<LotDTO>(created);
+            var response = _mapper.Map<LotDto>(created);
 
-            return ApiResponseDTO<LotDTO>.SuccessResult(
+            return ServiceResult<LotDto>.SuccessResult(
                 response,
                 "Lot created successfully.");
         }
 
-        public async Task<ApiResponseDTO<LotDTO>> UpdateLot(Guid id, UpdateLotDTO updateLotDTO, CancellationToken ct)
+        public async Task<ServiceResult<LotDto>> UpdateLot(Guid id, UpdateLotDto updateLotDto, CancellationToken ct)
         {
             var existing = await _lotRepository.GetByIdAsync(id, ct);
             if (existing is null)
             {
-                return ApiResponseDTO<LotDTO>.ErrorResult("Lot not found.");
+                return ServiceResult<LotDto>.ErrorResult("Lot not found.");
             }
-            existing.UpdateDetails(
-                updateLotDTO.RemainingQuantity,
-                updateLotDTO.StorageLocation);
+            existing.UpdateStorageLocation(updateLotDto.StorageLocation);
 
             var updated = await _lotRepository.UpdateAsync(existing, ct);
-            var response = _mapper.Map<LotDTO>(updated);
-            return ApiResponseDTO<LotDTO>.SuccessResult(
+            var response = _mapper.Map<LotDto>(updated);
+            return ServiceResult<LotDto>.SuccessResult(
                 response,
                 "Lot updated successfully.");
         }
 
-        public async Task<ApiResponseDTO<bool>> DeleteLot(Guid id, CancellationToken ct)
+        public async Task<ServiceResult<bool>> DeleteLot(Guid id, CancellationToken ct)
         {
             var deleted = await _lotRepository.DeleteAsync(id, ct);
             return deleted
-            ? ApiResponseDTO<bool>.SuccessResult(
+            ? ServiceResult<bool>.SuccessResult(
                 true,
                 "Lot deleted successfully.")
-            : ApiResponseDTO<bool>.ErrorResult(
+            : ServiceResult<bool>.ErrorResult(
                 "Lot not found.");
         }
         // Lot Summary 
-        public async Task<ApiResponseDTO<IEnumerable<LotSummaryDTO>>> GetSummaryByItemId(Guid itemId, CancellationToken ct)
+        public async Task<ServiceResult<IEnumerable<LotSummaryDto>>> GetSummaryByItemId(Guid itemId, CancellationToken ct)
         {
             var lots = await _lotRepository.GetByItemIdAsync(itemId, ct);
-            var summaries = _mapper.Map<IEnumerable<LotSummaryDTO>>(lots);
-            return ApiResponseDTO<LotSummaryDTO>.SuccessResult(
+            var summaries = _mapper.Map<IEnumerable<LotSummaryDto>>(lots);
+            return ServiceResult<LotSummaryDto>.SuccessResult(
                 summaries,
                 "Lots retrieved successfully.");
         }
 
-        public async Task<ApiResponseDTO<IEnumerable<LotSummaryDTO>>> GetAllSummary(CancellationToken ct)
+        public async Task<ServiceResult<IEnumerable<LotSummaryDto>>> GetAllSummary(CancellationToken ct)
         {
             var lots = await _lotRepository.GetAllAsync(ct);
 
-            var summaries = _mapper.Map<IEnumerable<LotSummaryDTO>>(lots);
+            var summaries = _mapper.Map<IEnumerable<LotSummaryDto>>(lots);
 
-            return ApiResponseDTO<IEnumerable<LotSummaryDTO>>.SuccessResult(
+            return ServiceResult<IEnumerable<LotSummaryDto>>.SuccessResult(
             summaries,
             "Lot summaries retrieved successfully.");
         }

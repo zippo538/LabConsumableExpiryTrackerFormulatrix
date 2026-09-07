@@ -1,7 +1,7 @@
 using AutoMapper;
+using LabConsumableExpiryTracker.Commons.Result;
 using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.DTOs;
-using LabConsumableExpiryTracker.Repositories;
 using LabConsumableExpiryTracker.Repositories.Interfaces;
 using LabConsumableExpiryTracker.Services.Interfaces;
 
@@ -16,33 +16,33 @@ namespace LabConsumableExpiryTracker.Services
             _itemRepository = itemRepository;
             _mapper = mapper;
         }
-        public async Task<ApiResponseDTO<IEnumerable<ItemDTO>>> GetAllItem(CancellationToken ct)
+        public async Task<ServiceResult<IEnumerable<ItemDto>>> GetAllItem(CancellationToken ct)
         {
             var items = await _itemRepository.GetAllAsync(ct);
-            var data = _mapper.Map<IEnumerable<ItemDTO>>(items);
+            var data = _mapper.Map<IEnumerable<ItemDto>>(items);
 
-            return ApiResponseDTO<IEnumerable<ItemDTO>>.SuccessResult(
+            return ServiceResult<IEnumerable<ItemDto>>.SuccessResult(
                 data,
                 "Items retrieved successfully.");
         }
 
-        public async Task<ApiResponseDTO<ItemDTO>> GetByIdItem(Guid id, CancellationToken ct)
+        public async Task<ServiceResult<ItemDto>> GetByIdItem(Guid id, CancellationToken ct)
         {
             var item = await _itemRepository.GetByIdAsync(id, ct);
 
             if (item is null)
             {
-                return ApiResponseDTO<ItemDTO>.ErrorResult(
+                return ServiceResult<ItemDto>.ErrorResult(
                     "Item not found.");
             }
-            var response = _mapper.Map<ItemDTO>(item);
+            var response = _mapper.Map<ItemDto>(item);
 
-            return ApiResponseDTO<ItemDTO>.SuccessResult(
+            return ServiceResult<ItemDto>.SuccessResult(
                 response,
                 "Item retrieved successfully.");
         }
 
-        public async Task<ApiResponseDTO<ItemDTO>> CreateItem(CreateItemDTO dto, CancellationToken ct)
+        public async Task<ServiceResult<ItemDto>> CreateItem(CreateItemDto dto, CancellationToken ct)
         {
             var existing = await _itemRepository.GetByCodeAsync(
                 dto.Code,
@@ -50,28 +50,28 @@ namespace LabConsumableExpiryTracker.Services
 
             if (existing is not null)
             {
-                return ApiResponseDTO<ItemDTO>.ErrorResult("Item code already exists.");
+                return ServiceResult<ItemDto>.ErrorResult("Item code already exists.");
             }
 
             var item = _mapper.Map<Item>(dto);
             var created = await _itemRepository.AddAsync(item, ct);
-            var response = _mapper.Map<ItemDTO>(created);
+            var response = _mapper.Map<ItemDto>(created);
 
-            return ApiResponseDTO<ItemDTO>.SuccessResult(
+            return ServiceResult<ItemDto>.SuccessResult(
                 response,
                 "Item created successfully.");
         }
 
-        public async Task<ApiResponseDTO<ItemDTO>> UpdateItem(
+        public async Task<ServiceResult<ItemDto>> UpdateItem(
             Guid id,
-            UpdateItemDTO dto,
+            UpdateItemDto dto,
             CancellationToken ct)
         {
             var item = await _itemRepository.GetByIdAsync(id, ct);
 
             if (item is null)
             {
-                return ApiResponseDTO<ItemDTO>.ErrorResult(
+                return ServiceResult<ItemDto>.ErrorResult(
                     "Item not found.");
             }
 
@@ -82,24 +82,24 @@ namespace LabConsumableExpiryTracker.Services
                 dto.ExpiringSoonDays);
 
             var updated = await _itemRepository.UpdateAsync(item, ct);
-            var response = _mapper.Map<ItemDTO>(updated);
+            var response = _mapper.Map<ItemDto>(updated);
 
-            return ApiResponseDTO<ItemDTO>.SuccessResult(
+            return ServiceResult<ItemDto>.SuccessResult(
                 response,
                 "Item updated successfully.");
         }
 
-        public async Task<ApiResponseDTO<bool>> DeleteItem(
+        public async Task<ServiceResult<bool>> DeleteItem(
             Guid id,
             CancellationToken ct)
         {
             var deleted = await _itemRepository.DeleteAsync(id, ct);
 
             return deleted
-                ? ApiResponseDTO<bool>.SuccessResult(
+                ? ServiceResult<bool>.SuccessResult(
                     true,
                     "Item deleted successfully.")
-                : ApiResponseDTO<bool>.ErrorResult(
+                : ServiceResult<bool>.ErrorResult(
                     "Item not found.");
         }
     }

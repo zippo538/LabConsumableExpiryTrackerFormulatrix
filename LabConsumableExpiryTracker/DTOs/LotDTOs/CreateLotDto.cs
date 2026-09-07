@@ -6,7 +6,7 @@ using LabConsumableExpiryTracker.Models.Enums;
 
 namespace LabConsumableExpiryTracker.DTOs
 {
-    public class CreateLotDTO
+    public class CreateLotDto
     {
         public Guid ItemId { get; set; }
         public string LotNumber { get; set; } = string.Empty;

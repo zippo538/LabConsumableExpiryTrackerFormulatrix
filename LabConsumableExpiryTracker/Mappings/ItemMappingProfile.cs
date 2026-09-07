@@ -9,7 +9,7 @@ namespace LabConsumableExpiryTracker.Mappings
     {
         public ItemMappingProfile()
         {
-            CreateMap<Item, ItemDTO>()
+            CreateMap<Item, ItemDto>()
 
     .ForMember(
         destination => destination.TotalRemainingQuantity,
@@ -21,7 +21,7 @@ namespace LabConsumableExpiryTracker.Mappings
             source.Lots.Sum(lot => lot.RemainingQuantity)
             <= source.MinimumStock));
 
-            CreateMap<CreateItemDTO, Item>()
+            CreateMap<CreateItemDto, Item>()
                 .ConstructUsing(source => new Item(
                     Guid.NewGuid(),
                     source.Code,
@@ -30,9 +30,9 @@ namespace LabConsumableExpiryTracker.Mappings
                     source.MinimumStock,
                     source.ExpiringSoonDays));
 
-            CreateMap<UpdateItemDTO, Item>();
+            CreateMap<UpdateItemDto, Item>();
 
-            CreateMap<Lot, LotSummaryDTO>()
+            CreateMap<Lot, LotSummaryDto>()
         .ForMember(
             destination => destination.LotId,
             options => options.MapFrom(source => source.Id))
@@ -40,7 +40,7 @@ namespace LabConsumableExpiryTracker.Mappings
             destination => destination.Status,
             options => options.MapFrom(source => source.Status.ToString()));
 
-            CreateMap<Item, ItemDTO>()
+            CreateMap<Item, ItemDto>()
                 .ForMember(
                     destination => destination.TotalRemainingQuantity,
                     options => options.MapFrom(source =>

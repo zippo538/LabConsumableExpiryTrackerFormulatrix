@@ -7,9 +7,9 @@ namespace LabConsumableExpiryTracker.Data.Seeders
 {
     public class ItemLotSeeder
     {
-        private readonly AppDBContext _dbContext;
+        private readonly AppDbContext _dbContext;
 
-        public ItemLotSeeder(AppDBContext dbContext)
+        public ItemLotSeeder(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }

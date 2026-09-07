@@ -9,10 +9,10 @@ namespace LabConsumableExpiryTracker.Repositories
     : IRepository<TEntity, TKey>
     where TEntity : class
     {
-        protected readonly AppDBContext Context;
+        protected readonly AppDbContext Context;
         protected readonly DbSet<TEntity> DbSet;
 
-        public Repository(AppDBContext context)
+        public Repository(AppDbContext context)
         {
             Context = context;
             DbSet = context.Set<TEntity>();

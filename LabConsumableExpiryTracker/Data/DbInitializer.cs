@@ -4,11 +4,11 @@ namespace LabConsumableExpiryTracker.Data
 {
     public class DbInitializer : IDbinitializer
     {
-        private readonly AppDBContext _dbContext;
+        private readonly AppDbContext _dbContext;
     private readonly ILogger<DbInitializer> _logger;
 
     public DbInitializer(
-        AppDBContext dbContext,
+        AppDbContext dbContext,
         ILogger<DbInitializer> logger)
     {
         _dbContext = dbContext;

@@ -16,14 +16,14 @@ namespace LabConsumableExpiryTracker.Controllers
     {
         private readonly IItemService _itemService;
         private readonly ILotService _lotService;
-        private readonly IValidator<CreateItemDTO> _createItemValidator;
-        private readonly IValidator<UpdateItemDTO> _updateItemValidator;
+        private readonly IValidator<CreateItemDto> _createItemValidator;
+        private readonly IValidator<UpdateItemDto> _updateItemValidator;
 
 
         public ItemController(
             IItemService itemService,
-            IValidator<CreateItemDTO> createItemValidator,
-            IValidator<UpdateItemDTO> updateItemValidator,
+            IValidator<CreateItemDto> createItemValidator,
+            IValidator<UpdateItemDto> updateItemValidator,
             ILotService lotService
             )
         {
@@ -34,7 +34,7 @@ namespace LabConsumableExpiryTracker.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponseDTO<IEnumerable<ItemDTO>>>> GetAll(
+        public async Task<ActionResult<ApiResponseDTO<IEnumerable<ItemDto>>>> GetAll(
             CancellationToken ct = default)
         {
             var response = await _itemService.GetAllItem(ct);
@@ -42,7 +42,7 @@ namespace LabConsumableExpiryTracker.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<ApiResponseDTO<ItemDTO>>> GetById(
+        public async Task<ActionResult<ApiResponseDTO<ItemDto>>> GetById(
             Guid id,
             CancellationToken ct = default)
         {
@@ -54,15 +54,15 @@ namespace LabConsumableExpiryTracker.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponseDTO<ItemDTO>>> Create(
-            [FromBody] CreateItemDTO dto,
+        public async Task<ActionResult<ApiResponseDTO<ItemDto>>> Create(
+            [FromBody] CreateItemDto dto,
             CancellationToken ct = default)
         {
             var validation = await _createItemValidator.ValidateAsync(dto, ct);
 
             if (!validation.IsValid)
             {
-                return BadRequest(ApiResponseDTO<ItemDTO>.ErrorResult(
+                return BadRequest(ApiResponseDTO<ItemDto>.ErrorResult(
                     "Validation failed.",
                     validation.Errors
                         .Select(error => error.ErrorMessage)
@@ -83,16 +83,16 @@ namespace LabConsumableExpiryTracker.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<ApiResponseDTO<ItemDTO>>> Update(
+        public async Task<ActionResult<ApiResponseDTO<ItemDto>>> Update(
             Guid id,
-            [FromBody] UpdateItemDTO dto,
+            [FromBody] UpdateItemDto dto,
             CancellationToken ct = default)
         {
             var validation = await _updateItemValidator.ValidateAsync(dto, ct);
 
             if (!validation.IsValid)
             {
-                return BadRequest(ApiResponseDTO<ItemDTO>.ErrorResult(
+                return BadRequest(ApiResponseDTO<ItemDto>.ErrorResult(
                     "Validation failed.",
                     validation.Errors
                         .Select(error => error.ErrorMessage)
@@ -120,7 +120,7 @@ namespace LabConsumableExpiryTracker.Controllers
 
         //lot summary
         [HttpGet("item/{itemId:guid}/summary")]
-        public async Task<ActionResult<ApiResponseDTO<IEnumerable<LotSummaryDTO>>>> GetSummaryByItemId(
+        public async Task<ActionResult<ApiResponseDTO<IEnumerable<LotSummaryDto>>>> GetSummaryByItemId(
             Guid itemId,
             CancellationToken ct = default)
         {
