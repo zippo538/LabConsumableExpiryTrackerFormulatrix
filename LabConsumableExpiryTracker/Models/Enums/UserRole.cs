@@ -2,6 +2,6 @@ namespace LabConsumableExpiryTracker.Models.Enums;
 
 public enum UserRole
 {
-    WareHouseAdmin,
+    WarehouseAdmin,
     Scientist
 }

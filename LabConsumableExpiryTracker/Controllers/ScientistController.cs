@@ -12,7 +12,7 @@ public class ScientistController : ControllerBase
 {
     private readonly IIdentityService _identityService;
 
-    [Authorize(Roles = "WareHouseAdmin")]
+    [Authorize(Roles = "WarehouseAdmin")]
     [HttpPost]
     public async Task<ActionResult<ServiceResult<ScientistResponseDto>>> Register(CreateScientistRequestDto createScientistRequest)
     {
@@ -24,7 +24,7 @@ public class ScientistController : ControllerBase
         return Ok(response);
     }
 
-    [Authorize(Roles = "WareHouseAdmin")]
+    [Authorize(Roles = "WarehouseAdmin")]
     [HttpGet]
     public async Task<ActionResult<ServiceResult<List<ScientistResponseDto>>>> GetScientists()
     {
@@ -36,7 +36,7 @@ public class ScientistController : ControllerBase
         return Ok(response);
     }
 
-    [Authorize(Roles = "WareHouseAdmin")]
+    [Authorize(Roles = "WarehouseAdmin")]
     [HttpPut("/{id:guid}")]
     public async Task<ActionResult<ServiceResult<ScientistResponseDto>>> UpdateScientist(
         Guid id,
@@ -50,7 +50,7 @@ public class ScientistController : ControllerBase
         return Ok(response);
     }
 
-    [Authorize(Roles = "WareHouseAdmin")]
+    [Authorize(Roles = "WarehouseAdmin")]
     [HttpPut("{id}/activate")]
     public async Task<IActionResult> ActivateScientist(Guid id)
     {
@@ -63,7 +63,7 @@ public class ScientistController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(Roles = "WareHouseAdmin")]
+    [Authorize(Roles = "WarehouseAdmin")]
     [HttpPut("{id}/deactivate")]
     public async Task<IActionResult> DeactivateScientist(Guid id)
     {
@@ -76,7 +76,7 @@ public class ScientistController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(Roles = "WareHouseAdmin")]
+    [Authorize(Roles = "WarehouseAdmin")]
     [HttpDelete("scientists/{id:guid}")]
     public async Task<ActionResult<bool>> DeleteScientist(Guid id)
     {

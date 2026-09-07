@@ -12,7 +12,7 @@ namespace LabConsumableExpiryTracker.Data.Seeders
             RoleManager<IdentityRole<Guid>> roleManager)
         {
             // 1. Seed Roles
-            string[] roles = [UserRole.WareHouseAdmin.ToString(),  UserRole.Scientist.ToString()];
+            string[] roles = [UserRole.WarehouseAdmin.ToString(),  UserRole.Scientist.ToString()];
             
             foreach (var role in roles)
             {
@@ -22,18 +22,18 @@ namespace LabConsumableExpiryTracker.Data.Seeders
                 }
             }
 
-            // 2. Seed SuperAdmin
-            var superAdminUsername = "warehouseadmin";
-            var existingAdmin = await userManager.FindByNameAsync(superAdminUsername);
+            // 2. Seed WarehousAdmin
+            var warehouseAdminUsername = "warehouseadmin";
+            var existingAdmin = await userManager.FindByNameAsync(warehouseAdminUsername);
 
             if (existingAdmin == null)
             {
-                var superAdmin = new User(superAdminUsername, "admin@lab.com");
+                var warehouseAdmin = new User(warehouseAdminUsername, "admin@lab.com");
 
-                var result = await userManager.CreateAsync(superAdmin, "WarehouseAdmin123!");
+                var result = await userManager.CreateAsync(warehouseAdmin, "WarehouseAdmin123!");
                 if (result.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(superAdmin, UserRole.WareHouseAdmin.ToString());
+                    await userManager.AddToRoleAsync(warehouseAdmin, UserRole.WarehouseAdmin.ToString());
                 }
             }
         }
