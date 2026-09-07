@@ -1,3 +1,4 @@
+using LabConsumableExpiryTracker.Commons.Result;
 using LabConsumableExpiryTracker.DTOs;
 using LabConsumableExpiryTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -58,7 +59,7 @@ public class LotController : ControllerBase
         return response.Success ? NoContent() : NotFound(response);
     }
     [HttpGet("summary")]
-    public async Task<ActionResult<ApiResponseDTO<IEnumerable<LotSummaryDTO>>>> GetAllSummary(
+    public async Task<ActionResult<ServiceResult<IEnumerable<LotSummaryDTO>>>> GetAllSummary(
     CancellationToken ct = default)
     {
     var response = await _lotService.GetAllSummary(ct);

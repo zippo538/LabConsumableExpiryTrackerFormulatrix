@@ -39,7 +39,7 @@ public class IdentityService : IIdentityService
 
         if (user == null || !user.IsActive)
         {
-            return ServiceResult<AuthResponseDto>.Fail(
+            return ServiceResult<AuthResponseDto>.ErrorResult(
                 "User not found or inactive."
             );
         }
@@ -51,18 +51,18 @@ public class IdentityService : IIdentityService
 
         if (!isPasswordValid)
         {
-            return ServiceResult<AuthResponseDto>.Fail(
+            return ServiceResult<AuthResponseDto>.ErrorResult(
                 "Invalid password."
             );
         }
 
-        string token = await GenerateJwtTokenAsync(user);
+        string tSuccessResulten = await GenerateJwtTSuccessResultenAsync(user);
 
         var response = new AuthResponseDto(
-            token
+            tSuccessResulten
         );
 
-        return ServiceResult<AuthResponseDto>.Ok(response);
+        return ServiceResult<AuthResponseDto>.SuccessResult(response);
     }
 
     public async Task<ServiceResult<ScientistResponseDto>> RegisterScientistAsync(
@@ -82,9 +82,12 @@ public class IdentityService : IIdentityService
         {
             var errors = result.Errors
                 .Select(e => e.Description)
-                .ToArray();
+                .ToList();
 
-            return ServiceResult<ScientistResponseDto>.Fail(errors);
+            return ServiceResult<ScientistResponseDto>.ErrorResult(
+                "Failed to create scientist.",
+                errors
+            );
         }
 
         var roleResult = await _userManager.AddToRoleAsync(
@@ -97,14 +100,17 @@ public class IdentityService : IIdentityService
             await _userManager.DeleteAsync(user);
             var errors = roleResult.Errors
                 .Select(e => e.Description)
-                .ToArray();
+                .ToList();
 
-            return ServiceResult<ScientistResponseDto>.Fail(errors);
+            return ServiceResult<ScientistResponseDto>.ErrorResult(
+                "Failed to assign scientist role.",
+                errors
+            );
         }
 
         var response = _mapper.Map<ScientistResponseDto>(user);
 
-        return ServiceResult<ScientistResponseDto>.Ok(response);
+        return ServiceResult<ScientistResponseDto>.SuccessResult(response);
     }
 
     public async Task<ServiceResult<List<ScientistResponseDto>>> GetAllScientistsAsync()
@@ -113,7 +119,7 @@ public class IdentityService : IIdentityService
 
         var response = _mapper.Map<List<ScientistResponseDto>>(scientists);
 
-        return ServiceResult<List<ScientistResponseDto>>.Ok(response);
+        return ServiceResult<List<ScientistResponseDto>>.SuccessResult(response);
     }
 
     public async Task<ServiceResult<ScientistResponseDto>> UpdateScientistAsync(Guid id,
@@ -123,7 +129,7 @@ public class IdentityService : IIdentityService
 
         if (scientist is null || !await _userManager.IsInRoleAsync(scientist, UserRole.Scientist.ToString()))
         {
-            return ServiceResult<ScientistResponseDto>.Fail(
+            return ServiceResult<ScientistResponseDto>.ErrorResult(
                 "Scientist not found."
             );
         }
@@ -137,14 +143,17 @@ public class IdentityService : IIdentityService
         {
             var errors = result.Errors
                 .Select(e => e.Description)
-                .ToArray();
+                .ToList();
 
-            return ServiceResult<ScientistResponseDto>.Fail(errors);
+            return ServiceResult<ScientistResponseDto>.ErrorResult(
+                "ErrorResulted to update scientist detail.",
+                errors
+            );
         }
 
         var response = _mapper.Map<ScientistResponseDto>(scientist);
 
-        return ServiceResult<ScientistResponseDto>.Ok(response);
+        return ServiceResult<ScientistResponseDto>.SuccessResult(response);
     }
 
     public async Task<ServiceResult<bool>> SetScientistActiveStatusAsync(
@@ -158,7 +167,7 @@ public class IdentityService : IIdentityService
                 scientist,
                 UserRole.Scientist.ToString()))
         {
-            return ServiceResult<bool>.Fail(
+            return ServiceResult<bool>.ErrorResult(
                 "Scientist not found."
             );
         }
@@ -171,12 +180,15 @@ public class IdentityService : IIdentityService
         {
             var errors = result.Errors
                 .Select(e => e.Description)
-                .ToArray();
+                .ToList();
 
-            return ServiceResult<bool>.Fail(errors);
+            return ServiceResult<bool>.ErrorResult(
+                "ErrorResulted to update scientist status.",
+                errors
+            );
         }
 
-        return ServiceResult<bool>.Ok(true);
+        return ServiceResult<bool>.SuccessResult(true);
     }
 
     public async Task<ServiceResult<bool>> DeleteScientistAsync(Guid id)
@@ -185,7 +197,7 @@ public class IdentityService : IIdentityService
 
         if (scientist is null || !await _userManager.IsInRoleAsync(scientist, UserRole.Scientist.ToString()))
         {
-            return ServiceResult<bool>.Fail(
+            return ServiceResult<bool>.ErrorResult(
                 "Scientist tidak ditemukan."
             );
         }
@@ -196,15 +208,18 @@ public class IdentityService : IIdentityService
         {
             var errors = result.Errors
                 .Select(e => e.Description)
-                .ToArray();
+                .ToList();
 
-            return ServiceResult<bool>.Fail(errors);
+            return ServiceResult<bool>.ErrorResult(
+                "ErrorResulted to delete scientist account.",
+                errors
+            );
         }
 
-        return ServiceResult<bool>.Ok(true);
+        return ServiceResult<bool>.SuccessResult(true);
     }
 
-    private async Task<string> GenerateJwtTokenAsync(User user)
+    private async Task<string> GenerateJwtTSuccessResultenAsync(User user)
     {
         var roles = await _userManager.GetRolesAsync(user);
 
@@ -230,6 +245,7 @@ public class IdentityService : IIdentityService
             SecurityAlgorithms.HmacSha256
         );
 
+  
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,
             audience: _jwtSettings.Audience,

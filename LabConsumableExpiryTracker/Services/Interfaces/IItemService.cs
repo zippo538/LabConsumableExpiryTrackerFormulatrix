@@ -1,26 +1,27 @@
+using LabConsumableExpiryTracker.Commons.Result;
 using LabConsumableExpiryTracker.DTOs;
 
 namespace LabConsumableExpiryTracker.Services.Interfaces
 {
     public interface IItemService
     {
-        Task<ApiResponseDTO<IEnumerable<ItemDTO>>> GetAllItem(
+        Task<ServiceResult<IEnumerable<ItemDTO>>> GetAllItem(
        CancellationToken ct);
 
-        Task<ApiResponseDTO<ItemDTO>> GetByIdItem(
+        Task<ServiceResult<ItemDTO>> GetByIdItem(
             Guid id,
             CancellationToken ct);
 
-        Task<ApiResponseDTO<ItemDTO>> CreateItem(
+        Task<ServiceResult<ItemDTO>> CreateItem(
             CreateItemDTO lot,
             CancellationToken ct);
 
-        Task<ApiResponseDTO<ItemDTO>> UpdateItem(
+        Task<ServiceResult<ItemDTO>> UpdateItem(
             Guid id,
             UpdateItemDTO lot,
             CancellationToken ct);
 
-        Task<ApiResponseDTO<bool>> DeleteItem(
+        Task<ServiceResult<bool>> DeleteItem(
             Guid id,
             CancellationToken ct);
     }

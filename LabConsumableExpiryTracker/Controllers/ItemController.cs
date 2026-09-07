@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using LabConsumableExpiryTracker.Commons.Result;
 using LabConsumableExpiryTracker.DTOs;
 using LabConsumableExpiryTracker.Services;
 using LabConsumableExpiryTracker.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LabConsumableExpiryTracker.Controllers
@@ -33,16 +35,18 @@ namespace LabConsumableExpiryTracker.Controllers
             _lotService = lotService;
         }
 
+        [Authorize(Roles = "WarehouseAdmin")]
         [HttpGet]
-        public async Task<ActionResult<ApiResponseDTO<IEnumerable<ItemDTO>>>> GetAll(
+        public async Task<ActionResult<ServiceResult<IEnumerable<ItemDTO>>>> GetAll(
             CancellationToken ct = default)
         {
             var response = await _itemService.GetAllItem(ct);
             return Ok(response);
         }
 
+        [Authorize(Roles = "WarehouseAdmin")]
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<ApiResponseDTO<ItemDTO>>> GetById(
+        public async Task<ActionResult<ServiceResult<ItemDTO>>> GetById(
             Guid id,
             CancellationToken ct = default)
         {
@@ -53,8 +57,9 @@ namespace LabConsumableExpiryTracker.Controllers
                 : NotFound(response);
         }
 
+        [Authorize(Roles = "WarehouseAdmin")]
         [HttpPost]
-        public async Task<ActionResult<ApiResponseDTO<ItemDTO>>> Create(
+        public async Task<ActionResult<ServiceResult<ItemDTO>>> Create(
             [FromBody] CreateItemDTO dto,
             CancellationToken ct = default)
         {
@@ -62,7 +67,7 @@ namespace LabConsumableExpiryTracker.Controllers
 
             if (!validation.IsValid)
             {
-                return BadRequest(ApiResponseDTO<ItemDTO>.ErrorResult(
+                return BadRequest(ServiceResult<ItemDTO>.ErrorResult(
                     "Validation failed.",
                     validation.Errors
                         .Select(error => error.ErrorMessage)
@@ -82,8 +87,9 @@ namespace LabConsumableExpiryTracker.Controllers
                 response);
         }
 
+        [Authorize(Roles = "WarehouseAdmin")]
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<ApiResponseDTO<ItemDTO>>> Update(
+        public async Task<ActionResult<ServiceResult<ItemDTO>>> Update(
             Guid id,
             [FromBody] UpdateItemDTO dto,
             CancellationToken ct = default)
@@ -92,7 +98,7 @@ namespace LabConsumableExpiryTracker.Controllers
 
             if (!validation.IsValid)
             {
-                return BadRequest(ApiResponseDTO<ItemDTO>.ErrorResult(
+                return BadRequest(ServiceResult<ItemDTO>.ErrorResult(
                     "Validation failed.",
                     validation.Errors
                         .Select(error => error.ErrorMessage)
@@ -106,8 +112,9 @@ namespace LabConsumableExpiryTracker.Controllers
                 : NotFound(response);
         }
 
+        [Authorize(Roles = "WarehouseAdmin")]
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult<ApiResponseDTO<bool>>> Delete(
+        public async Task<ActionResult<ServiceResult<bool>>> Delete(
             Guid id,
             CancellationToken ct = default)
         {
@@ -119,8 +126,9 @@ namespace LabConsumableExpiryTracker.Controllers
         }
 
         //lot summary
+        [Authorize(Roles = "WarehouseAdmin")]
         [HttpGet("item/{itemId:guid}/summary")]
-        public async Task<ActionResult<ApiResponseDTO<IEnumerable<LotSummaryDTO>>>> GetSummaryByItemId(
+        public async Task<ActionResult<ServiceResult<IEnumerable<LotSummaryDTO>>>> GetSummaryByItemId(
             Guid itemId,
             CancellationToken ct = default)
         {

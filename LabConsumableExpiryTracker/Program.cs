@@ -3,7 +3,7 @@ using FluentValidation;
 using LabConsumableExpiryTracker.Configurations;
 using LabConsumableExpiryTracker.Data;
 using LabConsumableExpiryTracker.Data.Seeders;
-using LabConsumableExpiryTracker.Mapping;
+using LabConsumableExpiryTracker.Mappings;
 using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Repositories;
 using LabConsumableExpiryTracker.Repositories.Interfaces;
@@ -91,9 +91,14 @@ builder.Services.Configure<JwtSettings>(
 
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 
-builder.Services.AddSingleton<ILotRepository, LotRepository>();
+builder.Services.AddScoped<ILotRepository, LotRepository>();
+builder.Services.AddScoped<ILotService, LotService>();
+
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IItemService, ItemService>();
 
 builder.Services.AddScoped<IDbinitializer, DbInitializer>();
+builder.Services.AddScoped<ItemLotSeeder>();
 
 
 // ==================================================
@@ -101,14 +106,18 @@ builder.Services.AddScoped<IDbinitializer, DbInitializer>();
 // ==================================================
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateScientistRequestValidator>();
-builder.Services.AddFluentValidationAutoValidation(); // dari package MVC, otomatis global ke semua controller
+builder.Services.AddFluentValidationAutoValidation();
 
 
 // ==================================================
 // AutoMapper
 // ==================================================
 
-builder.Services.AddAutoMapper(typeof(UserMappingProfile));
+builder.Services.AddAutoMapper(
+    typeof(UserMappingProfile),
+    typeof(LotMappingProfile),
+    typeof(ItemMappingProfile)
+);
 
 
 // ==================================================
@@ -169,10 +178,15 @@ var app = builder.Build();
 
 await using (var scope = app.Services.CreateAsyncScope())
 {
-    var initializer = scope.ServiceProvider
-        .GetRequiredService<IDbinitializer>();
+    var initializer =
+        scope.ServiceProvider.GetRequiredService<IDbinitializer>();
 
     await initializer.Initialized();
+
+    var itemLotSeeder =
+        scope.ServiceProvider.GetRequiredService<ItemLotSeeder>();
+
+    await itemLotSeeder.SeedAsync();
 }
 
 

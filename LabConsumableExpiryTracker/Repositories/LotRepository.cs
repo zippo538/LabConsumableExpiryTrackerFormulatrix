@@ -1,5 +1,6 @@
 using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Data;
+using LabConsumableExpiryTracker.Data.Seeders;
 using LabConsumableExpiryTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,9 +8,9 @@ namespace LabConsumableExpiryTracker.Repositories;
 
 public class LotRepository : Repository<Lot, Guid>, ILotRepository
 {
-    private readonly AppDBContext _context;
+    private readonly AppDbContext _context;
 
-    public LotRepository(AppDBContext context) : base(context)
+    public LotRepository(AppDbContext context) : base(context)
     {
         _context = context;
     }

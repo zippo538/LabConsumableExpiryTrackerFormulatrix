@@ -3,7 +3,7 @@ using LabConsumableExpiryTracker.DTOs.Auth;
 using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Models.Enums;
 
-namespace LabConsumableExpiryTracker.Mapping;
+namespace LabConsumableExpiryTracker.Mappings;
 
 public class UserMappingProfile : Profile
 {

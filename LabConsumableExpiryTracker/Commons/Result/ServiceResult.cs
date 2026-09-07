@@ -1,26 +1,31 @@
-﻿namespace LabConsumableExpiryTracker.Commons.Result;
-
-public class ServiceResult<T>
+namespace LabConsumableExpiryTracker.Commons.Result
 {
-    public bool Success { get; init; }
-    public T? Data { get; init; }
-    public string[] Errors { get; init; } = [];
-
-    public static ServiceResult<T> Ok(T data)
+    public class ServiceResult<T>
     {
-        return new ServiceResult<T>
-        {
-            Success = true,
-            Data = data
-        };
-    }
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public T? Data { get; set; }
+        public List<string> Errors { get; set; } = new List<string>();
 
-    public static ServiceResult<T> Fail(params string[] errors)
-    {
-        return new ServiceResult<T>
+        public static ServiceResult<T> SuccessResult<T>(T data, string message = "Success")
         {
-            Success = false,
-            Errors = errors
-        };
+            return new ServiceResult<T>
+            {
+                Success = true,
+                Message = message,
+                Data = data
+            };
+        }
+
+        public static ServiceResult<T> ErrorResult(string message, List<string>? errors = null)
+        {
+            return new ServiceResult<T>
+            {
+                Success = false,
+                Message = message,
+                Errors = errors ?? new List<string>()
+            };
+        }
+
     }
 }

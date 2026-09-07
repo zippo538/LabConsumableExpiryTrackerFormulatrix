@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FluentValidation;
-using LabConsumableExpiryTracker.Models.Enums;
 using LabConsumableExpiryTracker.DTOs;
+using LabConsumableExpiryTracker.Models.Enums;
 
-namespace LabConsumableExpiryTracker.Validators
+namespace LabConsumableExpiryTracker.Validators.Item
 {
     public class CreateItemValidator : AbstractValidator<CreateItemDTO>
     {
