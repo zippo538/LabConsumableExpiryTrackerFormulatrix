@@ -18,7 +18,7 @@ namespace LabConsumableExpiryTracker.Services
         }
         public async Task<ServiceResult<IEnumerable<ItemDto>>> GetAllItem(CancellationToken ct)
         {
-            var items = await _itemRepository.GetAllAsync(ct);
+            var items = await _itemRepository.GetAllWithLotsAsync(ct);
             var data = _mapper.Map<IEnumerable<ItemDto>>(items);
 
             return ServiceResult<IEnumerable<ItemDto>>.SuccessResult(
@@ -28,7 +28,7 @@ namespace LabConsumableExpiryTracker.Services
 
         public async Task<ServiceResult<ItemDto>> GetByIdItem(Guid id, CancellationToken ct)
         {
-            var item = await _itemRepository.GetByIdAsync(id, ct);
+            var item = await _itemRepository.GetByIdWithLotsAsync(id, ct);
 
             if (item is null)
             {

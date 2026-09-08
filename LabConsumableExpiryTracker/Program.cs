@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using LabConsumableExpiryTracker.Configurations;
 using LabConsumableExpiryTracker.Data;
@@ -20,7 +21,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
-
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -85,6 +85,15 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+// ==================================================
+// Serialize Json
+// ==================================================
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 // ==================================================
 // Application Services
@@ -119,22 +128,16 @@ builder.Services.AddScoped<ItemLotSeeder>();
 // ==================================================
 // Fluent Validation
 // ==================================================
-
 builder.Services.AddValidatorsFromAssemblyContaining<CreateScientistRequestValidator>();
 builder.Services.AddFluentValidationAutoValidation();
-
-
 // ==================================================
 // AutoMapper
 // ==================================================
-
 builder.Services.AddAutoMapper(
     typeof(UserMappingProfile),
     typeof(LotMappingProfile),
     typeof(ItemMappingProfile)
 );
-
-
 // ==================================================
 // Controllers
 // ==================================================

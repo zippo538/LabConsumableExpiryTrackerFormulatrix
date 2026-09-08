@@ -9,17 +9,16 @@ namespace LabConsumableExpiryTracker.Mappings
     {
         public ItemMappingProfile()
         {
+            CreateMap<Lot, LotDto>();
             CreateMap<Item, ItemDto>()
-
-    .ForMember(
-        destination => destination.TotalRemainingQuantity,
-        options => options.MapFrom(source =>
-            source.Lots.Sum(lot => lot.RemainingQuantity)))
-    .ForMember(
-        destination => destination.IsLowStock,
-        options => options.MapFrom(source =>
-            source.Lots.Sum(lot => lot.RemainingQuantity)
-            <= source.MinimumStock));
+            .ForMember(
+                destination => destination.TotalRemainingQuantity,
+                options => options.MapFrom(
+                source =>source.Lots.Sum(lot => lot.RemainingQuantity)))
+            .ForMember(
+                destination => destination.IsLowStock,
+                options => options.MapFrom(
+                source =>source.Lots.Sum(lot => lot.RemainingQuantity) <= source.MinimumStock));
 
             CreateMap<CreateItemDto, Item>()
                 .ConstructUsing(source => new Item(
