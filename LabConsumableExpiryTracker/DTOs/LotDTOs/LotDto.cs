@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LabConsumableExpiryTracker.DTOs
 {
-    public class LotDTO
+    public class LotDto
     {
         public Guid Id { get; init; }
         public Guid ItemId { get; init; }

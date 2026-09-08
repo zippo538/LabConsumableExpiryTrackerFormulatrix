@@ -33,7 +33,7 @@ public class LotController : ControllerBase
 
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateLotDTO request, CancellationToken ct)
+    public async Task<IActionResult> Create([FromBody] CreateLotDto request, CancellationToken ct)
     {
         var response = await _lotService.CreateLot(request, ct);
 
@@ -46,7 +46,7 @@ public class LotController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLotDTO request, CancellationToken ct)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLotDto request, CancellationToken ct)
     {
         var response = await _lotService.UpdateLot(id, request, ct);
         return response.Success ? NoContent() : NotFound(response);
@@ -59,7 +59,7 @@ public class LotController : ControllerBase
         return response.Success ? NoContent() : NotFound(response);
     }
     [HttpGet("summary")]
-    public async Task<ActionResult<ServiceResult<IEnumerable<LotSummaryDTO>>>> GetAllSummary(
+    public async Task<ActionResult<ServiceResult<IEnumerable<LotSummaryDto>>>> GetAllSummary(
     CancellationToken ct = default)
     {
     var response = await _lotService.GetAllSummary(ct);
