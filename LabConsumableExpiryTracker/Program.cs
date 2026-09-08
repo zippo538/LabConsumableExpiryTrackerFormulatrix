@@ -3,13 +3,17 @@ using FluentValidation;
 using LabConsumableExpiryTracker.Configurations;
 using LabConsumableExpiryTracker.Data;
 using LabConsumableExpiryTracker.Data.Seeders;
+using LabConsumableExpiryTracker.DTOs;
 using LabConsumableExpiryTracker.Mappings;
 using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Repositories;
 using LabConsumableExpiryTracker.Repositories.Interfaces;
 using LabConsumableExpiryTracker.Services;
 using LabConsumableExpiryTracker.Services.Interfaces;
+using LabConsumableExpiryTracker.Validators;
 using LabConsumableExpiryTracker.Validators.Auth;
+using LabConsumableExpiryTracker.Validators.ItemValidator;
+using LabConsumableExpiryTracker.Validators.LotValidator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +21,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
-var builder = WebApplication.CreateBuilder(args);
 
+
+var builder = WebApplication.CreateBuilder(args);
 // ==================================================
 // Configuration
 // ==================================================
@@ -90,12 +95,22 @@ builder.Services.Configure<JwtSettings>(
 );
 
 builder.Services.AddScoped<IIdentityService, IdentityService>();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ILotRepository, LotRepository>();
 builder.Services.AddScoped<ILotService, LotService>();
 
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<IItemService, ItemService>();
+
+builder.Services.AddScoped<IValidator<CreateItemDto>, CreateItemValidator>();
+builder.Services.AddScoped<IValidator<UpdateItemDto>, UpdateItemValidator>();
 
 builder.Services.AddScoped<IDbinitializer, DbInitializer>();
 builder.Services.AddScoped<ItemLotSeeder>();

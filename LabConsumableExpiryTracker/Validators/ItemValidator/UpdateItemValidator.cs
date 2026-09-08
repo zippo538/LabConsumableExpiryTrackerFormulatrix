@@ -2,11 +2,10 @@ using FluentValidation;
 using LabConsumableExpiryTracker.DTOs;
 using LabConsumableExpiryTracker.Models.Enums;
 
-<<<<<<<< HEAD:LabConsumableExpiryTracker/Validators/Item/UpdateItemValidator.cs
-namespace LabConsumableExpiryTracker.Validators.Item
-========
+
+
+
 namespace LabConsumableExpiryTracker.Validators.ItemValidator
->>>>>>>> feat-masterdata:LabConsumableExpiryTracker/Validators/ItemValidator/UpdateItemValidator.cs
 {
     public class UpdateItemValidator : AbstractValidator<UpdateItemDto>
     {
