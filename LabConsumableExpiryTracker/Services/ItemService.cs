@@ -45,7 +45,7 @@ namespace LabConsumableExpiryTracker.Services
         public async Task<ServiceResult<ItemDto>> CreateItem(CreateItemDto dto, CancellationToken ct)
         {
             var existing = await _itemRepository.GetByCodeAsync(
-                dto.Code,
+dto.Code,
                 ct);
 
             if (existing is not null)

@@ -43,7 +43,31 @@ namespace LabConsumableExpiryTracker.Services
 
         public async Task<ServiceResult<LotDto>> CreateLot(CreateLotDto createLotDto, CancellationToken ct)
         {
+            if (createLotDto.ItemId == Guid.Empty)
+            {
+            return ServiceResult<LotDto>.ErrorResult("ItemId is required.");    
+            }
+            if (string.IsNullOrWhiteSpace(createLotDto.LotNumber))
+            {    
+            return ServiceResult<LotDto>.ErrorResult("Lot number is required.");
+            }
+            if (createLotDto.InitialQuantity <= 0)
+            {
+            return ServiceResult<LotDto>.ErrorResult("Initial quantity must be greater than zero.");    
+            }
+            var duplicate = await _lotRepository.ExistsAsync(
+                createLotDto.ItemId,
+                createLotDto.LotNumber.Trim(),
+                createLotDto.ExpiryDate,
+                ct);
+
+                if (duplicate)
+                {
+                return ServiceResult<LotDto>.ErrorResult("A lot with the same item, lot number, and expiry date already exists.");                
+                }
             var lot = _mapper.Map<Lot>(createLotDto);
+            lot.UpdateRemainingQuantity(createLotDto.InitialQuantity); 
+
             var created = await _lotRepository.AddAsync(lot, ct);
             var response = _mapper.Map<LotDto>(created);
 
