@@ -9,6 +9,7 @@ using LabConsumableExpiryTracker.Services;
 using LabConsumableExpiryTracker.Services.Interfaces;
 using LabConsumableExpiryTracker.Validators;
 using LabConsumableExpiryTracker.Validators.ItemValidator;
+using LabConsumableExpiryTracker.Validators.LotValidator;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,8 @@ builder.Services.AddScoped<IItemService, ItemService>();
 
 builder.Services.AddScoped<IValidator<CreateItemDto>, CreateItemValidator>();
 builder.Services.AddScoped<IValidator<UpdateItemDto>, UpdateItemValidator>();
+builder.Services.AddScoped<IValidator<CreateLotDto>, CreateLotValidator>();
+builder.Services.AddScoped<IValidator<UpdateLotDto>, UpdateLotValidator>();
 
 builder.Services.AddScoped<IDbinitializer, DbInitializer>();
 builder.Services.AddScoped<ItemLotSeeder>();
