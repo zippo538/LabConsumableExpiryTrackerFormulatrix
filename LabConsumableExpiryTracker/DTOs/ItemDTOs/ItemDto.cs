@@ -6,7 +6,7 @@ using LabConsumableExpiryTracker.Models.Enums;
 
 namespace LabConsumableExpiryTracker.DTOs
 {
-    public class ItemDTO
+    public class ItemDto
     {
         public Guid Id { get; init; }
 
@@ -22,7 +22,7 @@ namespace LabConsumableExpiryTracker.DTOs
 
         public bool IsLowStock { get; init; }
 
-        public IReadOnlyCollection<LotSummaryDTO> Lots { get; init; }
-        = Array.Empty<LotSummaryDTO>();
+        public IReadOnlyCollection<LotSummaryDto> Lots { get; init; }
+        = Array.Empty<LotSummaryDto>();
     }
 }

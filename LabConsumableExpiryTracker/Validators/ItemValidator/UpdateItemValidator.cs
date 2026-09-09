@@ -2,21 +2,19 @@ using FluentValidation;
 using LabConsumableExpiryTracker.DTOs;
 using LabConsumableExpiryTracker.Models.Enums;
 
-namespace LabConsumableExpiryTracker.Validators.Item
-{
-    public class CreateItemValidator : AbstractValidator<CreateItemDTO>
-    {
-        public CreateItemValidator()
-        {
-            RuleFor(item => item.Code)
-                .Cascade(CascadeMode.Stop)
-                .NotEmpty().WithMessage("Item code is required.")
-                .MaximumLength(50).WithMessage("Item code cannot exceed 50 characters.");
 
+
+
+namespace LabConsumableExpiryTracker.Validators.ItemValidator
+{
+    public class UpdateItemValidator : AbstractValidator<UpdateItemDto>
+    {
+        public UpdateItemValidator()
+        {
             RuleFor(item => item.Name)
-                .Cascade(CascadeMode.Stop)
-                .NotEmpty().WithMessage("Item name is required.")
-                .MaximumLength(200).WithMessage("Item name cannot exceed 200 characters.");
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty().WithMessage("Item name is required.")
+            .MaximumLength(200).WithMessage("Item name cannot exceed 200 characters.");
 
             RuleFor(item => item.BaseUnit)
                 .Must(unit => Enum.IsDefined(typeof(UnitOfMeasure), unit))
