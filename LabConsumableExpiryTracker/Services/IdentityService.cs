@@ -56,10 +56,10 @@ public class IdentityService : IIdentityService
             );
         }
 
-        string tSuccessResulten = await GenerateJwtTSuccessResultenAsync(user);
+        string token = await GenerateJwtTSuccessResultenAsync(user);
 
         var response = new AuthResponseDto(
-            tSuccessResulten
+            token
         );
 
         return ServiceResult<AuthResponseDto>.SuccessResult(response);
