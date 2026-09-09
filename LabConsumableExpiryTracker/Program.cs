@@ -49,6 +49,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 
+// singleton
+builder.Services.AddSingleton(TimeProvider.System);
+
 // ==================================================
 // Identity
 // ==================================================
@@ -122,7 +125,6 @@ builder.Services.AddScoped<IValidator<CreateItemDto>, CreateItemValidator>();
 builder.Services.AddScoped<IValidator<UpdateItemDto>, UpdateItemValidator>();
 
 builder.Services.AddScoped<IDbinitializer, DbInitializer>();
-builder.Services.AddScoped<ItemLotSeeder>();
 
 
 // ==================================================
@@ -196,15 +198,8 @@ var app = builder.Build();
 
 await using (var scope = app.Services.CreateAsyncScope())
 {
-    var initializer =
-        scope.ServiceProvider.GetRequiredService<IDbinitializer>();
-
+    var initializer =scope.ServiceProvider.GetRequiredService<IDbinitializer>();
     await initializer.Initialized();
-
-    var itemLotSeeder =
-        scope.ServiceProvider.GetRequiredService<ItemLotSeeder>();
-
-    await itemLotSeeder.SeedAsync();
 }
 
 

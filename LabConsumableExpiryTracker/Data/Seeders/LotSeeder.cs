@@ -6,8 +6,6 @@ namespace LabConsumableExpiryTracker.Data.Seeders
 {
     public class LotSeeder
     {
-        private static readonly int[] ExpiryDayOffsets = [-30, 7, 30, 180];
-
         public static IReadOnlyCollection<Lot> Generate(
             IEnumerable<Guid> itemIds,
             TimeProvider timeProvider,
@@ -34,58 +32,85 @@ namespace LabConsumableExpiryTracker.Data.Seeders
                 return [];
             }
 
-            var faker = new Faker("id_ID");
+            var faker = new Faker("en");
             faker.Random = new Randomizer(seed);
 
-            var today = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
-            var lots = new List<Lot>(validItemIds.Length * lotsPerItem);
+            var today = DateOnly.FromDateTime(
+                timeProvider.GetUtcNow().UtcDateTime);
 
-            for (var itemIndex = 0; itemIndex < validItemIds.Length; itemIndex++)
+            var lots = new List<Lot>(
+                validItemIds.Length * lotsPerItem);
+
+            for (var itemIndex = 0;
+                 itemIndex < validItemIds.Length;
+                 itemIndex++)
             {
-                for (var lotIndex = 0; lotIndex < lotsPerItem; lotIndex++)
+                var itemId = validItemIds[itemIndex];
+
+                for (var lotIndex = 0;
+                     lotIndex < lotsPerItem;
+                     lotIndex++)
                 {
+                    var globalLotIndex =
+                        (itemIndex * lotsPerItem) + lotIndex;
+
+                    var scenario = LotScenarios[
+                        globalLotIndex % LotScenarios.Length];
+
                     var initialQuantity = decimal.Round(
                         faker.Random.Decimal(25m, 500m),
                         2,
                         MidpointRounding.AwayFromZero);
 
-                    var remainingQuantity = decimal.Round(
-                        faker.Random.Decimal(0m, initialQuantity),
-                        2,
-                        MidpointRounding.AwayFromZero);
-
-                    var expiryOffset = ExpiryDayOffsets[
-                        lotIndex % ExpiryDayOffsets.Length];
-
-                    var expiryDate = today.AddDays(
-                        expiryOffset + faker.Random.Int(0, 5));
+                    var remainingQuantity = scenario.MustBeEmpty
+                        ? 0m
+                        : decimal.Round(
+                            faker.Random.Decimal(1m, initialQuantity),
+                            2,
+                            MidpointRounding.AwayFromZero);
 
                     var receivedAt = new DateTimeOffset(
                             today.ToDateTime(new TimeOnly(8, 0)),
                             TimeSpan.Zero)
                         .AddDays(-faker.Random.Int(7, 365));
 
-                    var lotNumber = $"LOT-{itemIndex + 1:D3}-{lotIndex + 1:D3}";
-                    var supplierLotNumber = faker.Random.Bool(0.8f)
-                        ? $"SUP-{faker.Random.AlphaNumeric(8).ToUpperInvariant()}"
-                        : null;
+                    var itemKey = itemId
+                        .ToString("N")[..8]
+                        .ToUpperInvariant();
 
                     lots.Add(new Lot(
                         faker.Random.Guid(),
-                        validItemIds[itemIndex],
-                        lotNumber,
-                        supplierLotNumber,
+                        itemId,
+                        $"LOT-{itemKey}-{lotIndex + 1:D3}",
+                        faker.Random.Bool(0.8f)
+                            ? $"SUP-{faker.Random.AlphaNumeric(8).ToUpperInvariant()}"
+                            : null,
                         receivedAt,
                         faker.Company.CompanyName(),
                         initialQuantity,
                         remainingQuantity,
-                        expiryDate,
+                        today.AddDays(
+                            scenario.ExpiryDayOffset +
+                            faker.Random.Int(0, 5)),
                         $"Rack-{faker.Random.Int(1, 8):D2}",
-                        LotStatus.Active));
+                        scenario.Status));
                 }
             }
 
             return lots;
         }
+        private static readonly (
+    LotStatus Status,
+    int ExpiryDayOffset,
+    bool MustBeEmpty)[] LotScenarios =
+    [
+    (LotStatus.Active, 180, false),
+    (LotStatus.Active, 7, false),
+    (LotStatus.Quarantined, 90, false),
+    (LotStatus.ManuallyBlocked, 120, false),
+    (LotStatus.Disposed, 180, true),
+    (LotStatus.Active, -30, false)
+    ];
     }
+
 }

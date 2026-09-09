@@ -7,14 +7,14 @@ public class Lot
 
     public Guid Id { get; private set; }
     public Guid ItemId { get; private set; }
-    public string LotNumber { get; private set; } 
+    public string LotNumber { get; private set; }
     public string? SupplierLotNumber { get; private set; }
     public DateTimeOffset ReceivedAt { get; private set; }
     public string? SupplierName { get; private set; }
     public decimal InitialQuantity { get; private set; }
     public decimal RemainingQuantity { get; private set; }
     public DateOnly ExpiryDate { get; private set; }
-    public string StorageLocation { get; private set; } 
+    public string StorageLocation { get; private set; }
     public LotStatus Status { get; private set; }
     public byte[] RowVersion { get; private set; } = [];
 
@@ -68,6 +68,15 @@ public class Lot
         }
 
         StorageLocation = storageLocation.Trim();
+    }
+    public bool IsEligible(DateTimeOffset now)
+    {
+        var today = DateOnly.FromDateTime(
+            now.UtcDateTime);
+
+        return Status == LotStatus.Active
+            && RemainingQuantity > 0
+            && ExpiryDate >= today;
     }
 }
 

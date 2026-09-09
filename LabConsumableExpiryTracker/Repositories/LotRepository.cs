@@ -3,6 +3,7 @@ using LabConsumableExpiryTracker.Data;
 using LabConsumableExpiryTracker.Data.Seeders;
 using LabConsumableExpiryTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using LabConsumableExpiryTracker.Models.Enums;
 
 namespace LabConsumableExpiryTracker.Repositories;
 
@@ -39,5 +40,46 @@ public class LotRepository : Repository<Lot, Guid>, ILotRepository
             .OrderBy(lot => lot.ExpiryDate)
             .ThenBy(lot => lot.ReceivedAt)
             .ToListAsync(ct);
+    }
+    public async Task<decimal> GetTotalUsableQuantityAsync(
+        Guid itemId,
+        DateOnly today,
+        CancellationToken ct = default)
+    {
+        var total = await _context.Lots
+            .Where(lot =>
+                lot.ItemId == itemId &&
+                lot.Status == LotStatus.Active &&
+                lot.RemainingQuantity > 0 &&
+                lot.ExpiryDate >= today)
+            .SumAsync(
+                lot => (decimal?)lot.RemainingQuantity,
+                ct);
+
+        return total ?? 0m;
+    }
+
+    public async Task<IReadOnlyDictionary<Guid, decimal>> GetUsableQuantityByItemIdsAsync(IEnumerable<Guid> itemIds, DateOnly today, CancellationToken ct = default)
+    {
+        var ids = itemIds
+        .Where(id => id != Guid.Empty)
+        .Distinct()
+        .ToArray();
+
+        if (ids.Length == 0)
+        {
+        return new Dictionary<Guid, decimal>();
+        }
+    return await DbSet
+        .Where(lot =>
+            ids.Contains(lot.ItemId) &&
+            lot.Status == LotStatus.Active &&
+            lot.RemainingQuantity > 0 &&
+            lot.ExpiryDate >= today)
+        .GroupBy(lot => lot.ItemId)
+        .ToDictionaryAsync(
+            group => group.Key,
+            group => group.Sum(lot => lot.RemainingQuantity),
+            ct);
     }
 }

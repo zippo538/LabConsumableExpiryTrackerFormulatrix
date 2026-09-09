@@ -14,6 +14,9 @@ public class Item
     public IReadOnlyCollection<Lot> Lots => _lots.AsReadOnly();
 
 
+    private Item()
+    {
+    }
     public Item(
         Guid id,
         string code,
@@ -60,4 +63,31 @@ public class Item
         MinimumStock = minimumStock;
         ExpiringSoonDays = expiringSoonDays;
     }
+    public StockLevelStatus GetStockStatus(
+        decimal totalUsableQuantity)
+    {
+        if (totalUsableQuantity < 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(totalUsableQuantity));
+        }
+
+        if (totalUsableQuantity == 0)
+        {
+            return StockLevelStatus.OutOfStock;
+        }
+
+        if (totalUsableQuantity < MinimumStock)
+        {
+            return StockLevelStatus.LowStock;
+        }
+
+        if (totalUsableQuantity == MinimumStock)
+        {
+            return StockLevelStatus.AtMinimum;
+        }
+
+        return StockLevelStatus.Sufficient;
+    }
+
 }

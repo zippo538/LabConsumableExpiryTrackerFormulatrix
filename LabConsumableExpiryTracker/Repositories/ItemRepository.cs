@@ -37,10 +37,11 @@ namespace LabConsumableExpiryTracker.Repositories
 
         public async Task<Item?> GetByIdWithLotsAsync(Guid id, CancellationToken ct = default)
         {
-            return await DbSet
-            .AsNoTracking()
+            return await _context.Items
             .Include(item => item.Lots)
             .FirstOrDefaultAsync(item => item.Id == id, ct);
         }
+        
+
     }
 }

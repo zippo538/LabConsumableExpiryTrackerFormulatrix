@@ -12,13 +12,15 @@ namespace LabConsumableExpiryTracker.Mappings
             CreateMap<Lot, LotDto>();
             CreateMap<Item, ItemDto>()
             .ForMember(
-                destination => destination.TotalRemainingQuantity,
-                options => options.MapFrom(
-                source =>source.Lots.Sum(lot => lot.RemainingQuantity)))
+            destination => destination.Lots,
+            options => options.MapFrom(
+            source => source.Lots))
             .ForMember(
-                destination => destination.IsLowStock,
-                options => options.MapFrom(
-                source =>source.Lots.Sum(lot => lot.RemainingQuantity) <= source.MinimumStock));
+            destination => destination.TotalRemainingQuantity,
+            options => options.Ignore())
+            .ForMember(
+            destination => destination.StockStatus,
+            options => options.Ignore());
 
             CreateMap<CreateItemDto, Item>()
                 .ConstructUsing(source => new Item(
