@@ -29,7 +29,9 @@ namespace LabConsumableExpiryTracker.Controllers
         public async Task<ActionResult<ServiceResult<IReadOnlyList<JobDto>>>> GetAll(CancellationToken ct)
         {
             var response = await _jobService.GetAllAsync(ct);
-            return Ok(response);
+            return response.Success
+            ? Ok(response)
+            : NotFound(response);
         }
 
 
@@ -45,7 +47,6 @@ namespace LabConsumableExpiryTracker.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "LabOperator")]
         [ProducesResponseType(typeof(JobDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -61,26 +62,54 @@ namespace LabConsumableExpiryTracker.Controllers
                         .ToList()));
             }
             var response = await _jobService.CreateAsync(dto, ct);
-            return CreatedAtAction(nameof(GetById), new { id = response.Data!.Id }, response);
+            // return CreatedAtAction(nameof(GetById), new { id = response.Data!.Id }, response);
+            return response.Success
+            ? CreatedAtAction(nameof(GetById), new { id = response.Data!.Id }, response)
+            : NotFound(response);
+
+
+        }
+        [HttpPut]
+        [ProducesResponseType(typeof(JobDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<ServiceResult<JobDto>>> Update(Guid id, UpdateJobDto dto, CancellationToken ct)
+        {
+            var validation = await _updateJobValidator.ValidateAsync(dto, ct);
+            if (!validation.IsValid)
+            {
+                return BadRequest(ServiceResult<JobDto>.ErrorResult(
+                    "Validation failed.",
+                    validation.Errors
+                        .Select(error => error.ErrorMessage)
+                        .ToList()
+                ));
+            }
+            var response = await _jobService.UpdateStatusAsync(id, dto, ct);
+            return response.Success
+            ? Ok(response)
+            : NotFound(response);
 
 
         }
 
         [HttpPost("{id:guid}/start")]
-        [Authorize(Roles = "LabOperator")]
         public async Task<ActionResult<ServiceResult<JobDto>>> Start(Guid id, CancellationToken ct)
         {
-            var response = await  _jobService.StartAsync(id, ct);
-            return Ok(response);
-            
+            var response = await _jobService.StartAsync(id, ct);
+            return response.Success
+            ? Ok(response)
+            : NotFound(response);
+
         }
 
         [HttpPost("{id:guid}/complete")]
-        [Authorize(Roles = "LabOperator")]
         public async Task<ActionResult<ServiceResult<JobDto>>> Complete(Guid id, CancellationToken ct)
         {
             var response = await _jobService.CompleteAsync(id, ct);
-            return Ok(response);
+            return response.Success
+            ? Ok(response)
+            : NotFound(response);
         }
     }
 }
