@@ -2,9 +2,9 @@
 using LabConsumableExpiryTracker.Data;
 using LabConsumableExpiryTracker.Data.Seeders;
 using Microsoft.EntityFrameworkCore;
-using LabConsumableExpiryTracker.Repositories.Interfaces;
+using LabConsumableExpiryTracker.Services.Interfaces;
 
-namespace LabConsumableExpiryTracker.Repositories
+namespace LabConsumableExpiryTracker.Services
 {
     public class Repository<TEntity, TKey>
     : IRepository<TEntity, TKey>
@@ -36,7 +36,6 @@ namespace LabConsumableExpiryTracker.Repositories
             CancellationToken ct = default)
         {
             await DbSet.AddAsync(entity, ct);
-            await Context.SaveChangesAsync(ct);
 
             return entity;
         }
@@ -46,7 +45,6 @@ namespace LabConsumableExpiryTracker.Repositories
             CancellationToken ct = default)
         {
             DbSet.Update(entity);
-            await Context.SaveChangesAsync(ct);
 
             return entity;
         }
@@ -63,7 +61,6 @@ namespace LabConsumableExpiryTracker.Repositories
             }
 
             DbSet.Remove(entity);
-            await Context.SaveChangesAsync(ct);
 
             return true;
         }

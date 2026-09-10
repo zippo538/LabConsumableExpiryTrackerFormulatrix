@@ -7,7 +7,6 @@ using LabConsumableExpiryTracker.Commons.Result;
 using LabConsumableExpiryTracker.DTOs.JobDTOs;
 using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Models.Enums;
-using LabConsumableExpiryTracker.Repositories.Interfaces;
 using LabConsumableExpiryTracker.Services.Interfaces;
 
 namespace LabConsumableExpiryTracker.Services
@@ -17,34 +16,46 @@ namespace LabConsumableExpiryTracker.Services
         private readonly IJobRepository _jobRepository;
         private readonly TimeProvider _timeProvider;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
         public JobService(
             IJobRepository jobRepository,
             TimeProvider timeProvider,
-            IMapper mapper
+            IMapper mapper,
+            IUnitOfWork unitOfWork
             )
         {
             _jobRepository = jobRepository;
             _timeProvider = timeProvider;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
 
 
         public async Task<ServiceResult<JobDto>> CreateAsync(CreateJobDto dto, CancellationToken ct = default)
         {
+            if (dto == null)
+            {
+                return ServiceResult<JobDto>.ErrorResult(
+               "Request cannot be null."
+           );
+            }
+
             if (string.IsNullOrWhiteSpace(dto.JobNumber))
             {
-                ServiceResult<JobDto>.ErrorResult("Job number is required.");
+                return ServiceResult<JobDto>.ErrorResult("Job number is required.");
             }
+            var jobNumber = dto.JobNumber.Trim();
 
-            var existing = await _jobRepository.GetByJobNumberAsync(dto.JobNumber, ct);
-            if (existing is not null)
+            var existing = await _jobRepository.ExistsByJobNumberAsync(jobNumber, ct);
+            if (existing)
             {
-                ServiceResult<JobDto>.ErrorResult($"Job number '{dto.JobNumber.Trim()}' already exists.");
+                return ServiceResult<JobDto>.ErrorResult($"Job number '{jobNumber}' already exists.");
             }
 
-            var job = new Job(Guid.NewGuid(), dto.JobNumber);
+            var job = new Job(Guid.NewGuid(), jobNumber);
             var created = await _jobRepository.AddAsync(job, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
             var response = _mapper.Map<JobDto>(created);
             return ServiceResult<JobDto>.SuccessResult(
                 response,
@@ -64,7 +75,7 @@ namespace LabConsumableExpiryTracker.Services
         {
             if (id == Guid.Empty)
             {
-                ServiceResult<JobDto>.ErrorResult("Id is null");
+                return ServiceResult<JobDto>.ErrorResult("Id is null");
             }
             var create = await _jobRepository.GetByIdAsync(id, ct);
             var response = _mapper.Map<JobDto>(create);
@@ -102,7 +113,7 @@ namespace LabConsumableExpiryTracker.Services
         {
             if (id == Guid.Empty)
             {
-                ServiceResult<JobDto>.ErrorResult("Job id is null");
+                return ServiceResult<JobDto>.ErrorResult("Job id is null");
 
             }
             var job = await _jobRepository.GetByIdAsync(id, ct);
