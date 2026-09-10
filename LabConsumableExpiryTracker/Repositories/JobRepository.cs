@@ -1,0 +1,25 @@
+using LabConsumableExpiryTracker.Data.Seeders;
+using LabConsumableExpiryTracker.Models;
+using LabConsumableExpiryTracker.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace LabConsumableExpiryTracker.Repositories
+{
+    public class JobRepository : Repository<Job, Guid>, IJobRepository
+    {
+        public JobRepository(AppDbContext context) : base(context)
+        {
+            
+        }
+
+
+        public Task<Job?> GetByJobNumberAsync(string jobNumber, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(jobNumber)) throw new ArgumentException("Job number is required.", nameof(jobNumber));
+            var normalizedJobNumber = jobNumber.Trim();
+            return DbSet.SingleOrDefaultAsync(job => job.JobNumber == normalizedJobNumber, ct);
+        }
+
+
+    }
+}
