@@ -116,10 +116,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ILotRepository, LotRepository>();
-builder.Services.AddScoped<ILotService, LotService>();
-
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IJobRepository, JobRepository>();
+
+builder.Services.AddScoped<ILotService, LotService>();
 builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IJobService, JobService>();
+
 
 builder.Services.AddScoped<IValidator<CreateItemDto>, CreateItemValidator>();
 builder.Services.AddScoped<IValidator<UpdateItemDto>, UpdateItemValidator>();

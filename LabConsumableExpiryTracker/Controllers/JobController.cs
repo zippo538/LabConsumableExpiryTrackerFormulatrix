@@ -1,0 +1,86 @@
+using FluentValidation;
+using LabConsumableExpiryTracker.Commons.Result;
+using LabConsumableExpiryTracker.DTOs.JobDTOs;
+using LabConsumableExpiryTracker.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace LabConsumableExpiryTracker.Controllers
+{
+    [ApiController]
+    [Route("api/jobs")]
+    [Authorize(Roles = "LabOperator,WarehouseAdmin")]
+    public class JobController : ControllerBase
+    {
+        private readonly IJobService _jobService;
+        private readonly IValidator<CreateJobDto> _createJobValidator;
+        private readonly IValidator<UpdateJobDto> _updateJobValidator;
+        public JobController(
+            IJobService jobService,
+            IValidator<CreateJobDto> createJobValidator,
+            IValidator<UpdateJobDto> updateJobValidator)
+        {
+            _jobService = jobService;
+            _createJobValidator = createJobValidator;
+            _updateJobValidator = updateJobValidator;
+        }
+        [HttpGet]
+        [ProducesResponseType(typeof(IReadOnlyList<JobDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<ServiceResult<IReadOnlyList<JobDto>>>> GetAll(CancellationToken ct)
+        {
+            var response = await _jobService.GetAllAsync(ct);
+            return Ok(response);
+        }
+
+
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(typeof(JobDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ServiceResult<JobDto>>> GetById(Guid id, CancellationToken ct)
+        {
+            var response = await _jobService.GetByIdAsync(id, ct);
+            return response.Success
+            ? Ok(response)
+            : NotFound(response);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "LabOperator")]
+        [ProducesResponseType(typeof(JobDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<ServiceResult<JobDto>>> Create(CreateJobDto dto, CancellationToken ct)
+        {
+            var validation = await _createJobValidator.ValidateAsync(dto, ct);
+            if (!validation.IsValid)
+            {
+                return BadRequest(ServiceResult<JobDto>.ErrorResult(
+                    "Validation failed.",
+                    validation.Errors
+                        .Select(error => error.ErrorMessage)
+                        .ToList()));
+            }
+            var response = await _jobService.CreateAsync(dto, ct);
+            return CreatedAtAction(nameof(GetById), new { id = response.Data!.Id }, response);
+
+
+        }
+
+        [HttpPost("{id:guid}/start")]
+        [Authorize(Roles = "LabOperator")]
+        public async Task<ActionResult<ServiceResult<JobDto>>> Start(Guid id, CancellationToken ct)
+        {
+            var response = await  _jobService.StartAsync(id, ct);
+            return Ok(response);
+            
+        }
+
+        [HttpPost("{id:guid}/complete")]
+        [Authorize(Roles = "LabOperator")]
+        public async Task<ActionResult<ServiceResult<JobDto>>> Complete(Guid id, CancellationToken ct)
+        {
+            var response = await _jobService.CompleteAsync(id, ct);
+            return Ok(response);
+        }
+    }
+}

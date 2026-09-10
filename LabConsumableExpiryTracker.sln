@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabConsumableExpiryTracker", "LabConsumableExpiryTracker\LabConsumableExpiryTracker.csproj", "{9EADE9E0-499F-41AB-9A33-F6BDDB1B0C9E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabConsumableExpiryTracker.Tests", "LabConsumableExpiryTracker.Tests\LabConsumableExpiryTracker.Tests.csproj", "{32B557EC-17B4-4BA6-BF41-8BE39F3C8D0D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{9EADE9E0-499F-41AB-9A33-F6BDDB1B0C9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EADE9E0-499F-41AB-9A33-F6BDDB1B0C9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EADE9E0-499F-41AB-9A33-F6BDDB1B0C9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32B557EC-17B4-4BA6-BF41-8BE39F3C8D0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32B557EC-17B4-4BA6-BF41-8BE39F3C8D0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32B557EC-17B4-4BA6-BF41-8BE39F3C8D0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32B557EC-17B4-4BA6-BF41-8BE39F3C8D0D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

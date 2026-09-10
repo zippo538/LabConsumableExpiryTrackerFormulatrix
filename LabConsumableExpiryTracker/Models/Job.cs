@@ -14,8 +14,38 @@ public class Job
 
     public Job(Guid id, string jobNumber)
     {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException("Job id is required.", nameof(id));
+        }
+        if (string.IsNullOrWhiteSpace(jobNumber))
+        {
+            throw new ArgumentException("Job number is required.", nameof(jobNumber));
+        }
         Id = id;
         JobNumber = jobNumber.Trim();
         Status = JobStatus.Draft;
     }
+
+    public void Start(DateTimeOffset now)
+    {
+        if (Status != JobStatus.Draft)
+        {
+            throw new InvalidOperationException($"Job '{JobNumber}' can only be started from Draft. Current status: {Status}.");
+        }
+
+        Status = JobStatus.InProgress;
+        StartedAt = now;
+    }
+
+    public void Complete(DateTimeOffset now)
+    {
+        if (Status != JobStatus.InProgress)
+        {
+            throw new InvalidOperationException($"Job '{JobNumber}' can only be completed from InProgress. Current status: {Status}.");
+        }
+        Status = JobStatus.Completed; 
+        CompletedAt = now;
+    }
+    public void StartNow(DateTimeOffset now) => Start(now);
 }
