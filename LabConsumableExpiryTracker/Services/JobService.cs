@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using LabConsumableExpiryTracker.Commons.Result;
 using LabConsumableExpiryTracker.DTOs.JobDTOs;
 using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Models.Enums;
+using LabConsumableExpiryTracker.Repositories.Interfaces;
 using LabConsumableExpiryTracker.Services.Interfaces;
 
 namespace LabConsumableExpiryTracker.Services

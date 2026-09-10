@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FluentValidation;
 using LabConsumableExpiryTracker.Commons.Result;
 using LabConsumableExpiryTracker.DTOs;
-using LabConsumableExpiryTracker.Services;
 using LabConsumableExpiryTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -134,6 +129,6 @@ namespace LabConsumableExpiryTracker.Controllers
         {
             var response = await _lotService.GetSummaryByItemId(itemId, ct);
             return Ok(response);
-            }
+        }
     }
 }

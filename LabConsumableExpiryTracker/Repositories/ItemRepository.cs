@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using LabConsumableExpiryTracker.Models;
-using LabConsumableExpiryTracker.Data;
 using LabConsumableExpiryTracker.Data.Seeders;
+using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,7 +36,7 @@ namespace LabConsumableExpiryTracker.Repositories
             .Include(item => item.Lots)
             .FirstOrDefaultAsync(item => item.Id == id, ct);
         }
-        
+
 
     }
 }

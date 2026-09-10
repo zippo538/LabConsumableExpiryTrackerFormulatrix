@@ -9,7 +9,7 @@ namespace LabConsumableExpiryTracker.Controllers
 {
     [ApiController]
     [Route("api/jobs")]
-    [Authorize(Roles = "LabOperator,WarehouseAdmin")]
+    // [Authorize(Roles = "LabOperator,WarehouseAdmin")]
     public class JobController : ControllerBase
     {
         private readonly IJobService _jobService;
@@ -65,7 +65,7 @@ namespace LabConsumableExpiryTracker.Controllers
             // return CreatedAtAction(nameof(GetById), new { id = response.Data!.Id }, response);
             return response.Success
             ? CreatedAtAction(nameof(GetById), new { id = response.Data!.Id }, response)
-            : NotFound(response);
+            : Conflict(response);
 
 
         }
@@ -88,7 +88,7 @@ namespace LabConsumableExpiryTracker.Controllers
             var response = await _jobService.UpdateStatusAsync(id, dto, ct);
             return response.Success
             ? Ok(response)
-            : NotFound(response);
+            : Conflict(response);
 
 
         }
@@ -99,7 +99,7 @@ namespace LabConsumableExpiryTracker.Controllers
             var response = await _jobService.StartAsync(id, ct);
             return response.Success
             ? Ok(response)
-            : NotFound(response);
+            : BadRequest(response);
 
         }
 
@@ -109,7 +109,7 @@ namespace LabConsumableExpiryTracker.Controllers
             var response = await _jobService.CompleteAsync(id, ct);
             return response.Success
             ? Ok(response)
-            : NotFound(response);
+            : BadRequest(response);
         }
     }
 }

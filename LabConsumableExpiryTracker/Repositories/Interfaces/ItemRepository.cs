@@ -1,4 +1,5 @@
 using LabConsumableExpiryTracker.Models;
+
 namespace LabConsumableExpiryTracker.Repositories.Interfaces
 {
     public interface IItemRepository : IRepository<Item, Guid>

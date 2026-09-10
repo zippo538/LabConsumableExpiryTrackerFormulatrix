@@ -9,7 +9,6 @@ using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Models.Enums;
 using LabConsumableExpiryTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -245,7 +244,7 @@ public class IdentityService : IIdentityService
             SecurityAlgorithms.HmacSha256
         );
 
-  
+
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,
             audience: _jwtSettings.Audience,

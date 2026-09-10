@@ -1,9 +1,8 @@
-using LabConsumableExpiryTracker.Models;
-using LabConsumableExpiryTracker.Data;
 using LabConsumableExpiryTracker.Data.Seeders;
+using LabConsumableExpiryTracker.Models;
+using LabConsumableExpiryTracker.Models.Enums;
 using LabConsumableExpiryTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using LabConsumableExpiryTracker.Models.Enums;
 
 namespace LabConsumableExpiryTracker.Repositories;
 
@@ -68,18 +67,18 @@ public class LotRepository : Repository<Lot, Guid>, ILotRepository
 
         if (ids.Length == 0)
         {
-        return new Dictionary<Guid, decimal>();
+            return new Dictionary<Guid, decimal>();
         }
-    return await DbSet
-        .Where(lot =>
-            ids.Contains(lot.ItemId) &&
-            lot.Status == LotStatus.Active &&
-            lot.RemainingQuantity > 0 &&
-            lot.ExpiryDate >= today)
-        .GroupBy(lot => lot.ItemId)
-        .ToDictionaryAsync(
-            group => group.Key,
-            group => group.Sum(lot => lot.RemainingQuantity),
-            ct);
+        return await DbSet
+            .Where(lot =>
+                ids.Contains(lot.ItemId) &&
+                lot.Status == LotStatus.Active &&
+                lot.RemainingQuantity > 0 &&
+                lot.ExpiryDate >= today)
+            .GroupBy(lot => lot.ItemId)
+            .ToDictionaryAsync(
+                group => group.Key,
+                group => group.Sum(lot => lot.RemainingQuantity),
+                ct);
     }
 }

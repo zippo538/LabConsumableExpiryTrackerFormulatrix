@@ -1,10 +1,8 @@
-
-using LabConsumableExpiryTracker.Data;
 using LabConsumableExpiryTracker.Data.Seeders;
+using LabConsumableExpiryTracker.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using LabConsumableExpiryTracker.Services.Interfaces;
 
-namespace LabConsumableExpiryTracker.Services
+namespace LabConsumableExpiryTracker.Repositories
 {
     public class Repository<TEntity, TKey>
     : IRepository<TEntity, TKey>

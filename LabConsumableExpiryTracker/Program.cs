@@ -5,15 +5,16 @@ using LabConsumableExpiryTracker.Configurations;
 using LabConsumableExpiryTracker.Data;
 using LabConsumableExpiryTracker.Data.Seeders;
 using LabConsumableExpiryTracker.DTOs;
+using LabConsumableExpiryTracker.DTOs.JobDTOs;
 using LabConsumableExpiryTracker.Mappings;
 using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Repositories;
 using LabConsumableExpiryTracker.Repositories.Interfaces;
 using LabConsumableExpiryTracker.Services;
 using LabConsumableExpiryTracker.Services.Interfaces;
-using LabConsumableExpiryTracker.Validators;
 using LabConsumableExpiryTracker.Validators.Auth;
 using LabConsumableExpiryTracker.Validators.ItemValidator;
+using LabConsumableExpiryTracker.Validators.JobValidator;
 using LabConsumableExpiryTracker.Validators.LotValidator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -122,10 +123,15 @@ builder.Services.AddScoped<IJobRepository, JobRepository>();
 builder.Services.AddScoped<ILotService, LotService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IJobService, JobService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 builder.Services.AddScoped<IValidator<CreateItemDto>, CreateItemValidator>();
 builder.Services.AddScoped<IValidator<UpdateItemDto>, UpdateItemValidator>();
+builder.Services.AddScoped<IValidator<CreateLotDto>, CreateLotValidator>();
+builder.Services.AddScoped<IValidator<UpdateLotDto>, UpdateLotValidator>();
+builder.Services.AddScoped<IValidator<CreateJobDto>, CreateJobValidator>();
+builder.Services.AddScoped<IValidator<UpdateJobDto>, UpdateJobValidator>();
 
 builder.Services.AddScoped<IDbinitializer, DbInitializer>();
 
@@ -141,7 +147,8 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddAutoMapper(
     typeof(UserMappingProfile),
     typeof(LotMappingProfile),
-    typeof(ItemMappingProfile)
+    typeof(ItemMappingProfile),
+    typeof(JobMappingProfile)
 );
 // ==================================================
 // Controllers
@@ -201,7 +208,7 @@ var app = builder.Build();
 
 await using (var scope = app.Services.CreateAsyncScope())
 {
-    var initializer =scope.ServiceProvider.GetRequiredService<IDbinitializer>();
+    var initializer = scope.ServiceProvider.GetRequiredService<IDbinitializer>();
     await initializer.Initialized();
 }
 

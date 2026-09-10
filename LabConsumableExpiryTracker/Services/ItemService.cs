@@ -1,7 +1,7 @@
 using AutoMapper;
 using LabConsumableExpiryTracker.Commons.Result;
-using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.DTOs;
+using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Repositories.Interfaces;
 using LabConsumableExpiryTracker.Services.Interfaces;
 
@@ -13,37 +13,37 @@ namespace LabConsumableExpiryTracker.Services
         private readonly ILotRepository _lotRepository;
         private readonly IMapper _mapper;
         private readonly TimeProvider _timeProvider;
+        private readonly IUnitOfWork _unitOfWork;
         public ItemService(
-            IItemRepository itemRepository, 
-            IMapper mapper, 
+            IItemRepository itemRepository,
+            IMapper mapper,
             TimeProvider timeProvider,
-            ILotRepository lotRepository)
+            ILotRepository lotRepository,
+            IUnitOfWork unitOfWork)
         {
             _itemRepository = itemRepository;
             _mapper = mapper;
             _timeProvider = timeProvider;
             _lotRepository = lotRepository;
+            _unitOfWork = unitOfWork;
         }
         public async Task<ServiceResult<IEnumerable<ItemDto>>> GetAllItem(CancellationToken ct)
         {
             var items = await _itemRepository.GetAllWithLotsAsync(ct);
             var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
-            
+
             var itemIds = items.Select(item => item.Id).ToArray();
-            var usableQuantities = await _lotRepository.GetUsableQuantityByItemIdsAsync(itemIds,today,ct);
-            
+            var usableQuantities = await _lotRepository.GetUsableQuantityByItemIdsAsync(itemIds, today, ct);
+
             IEnumerable<ItemDto> data = items.Select(item =>
             {
-                var totalUsableQuantity = usableQuantities.TryGetValue(item.Id,
-                out var quantity)
-                ? quantity
-                : 0m;
-                
+                var totalUsableQuantity = usableQuantities.GetValueOrDefault(item.Id, 0m);
+
                 var dto = _mapper.Map<ItemDto>(item);
                 dto.TotalRemainingQuantity = totalUsableQuantity;
                 dto.StockStatus = item.GetStockStatus(totalUsableQuantity);
                 return dto;
-                }).ToList();
+            }).ToList();
 
 
             return ServiceResult<IEnumerable<ItemDto>>.SuccessResult(
@@ -83,6 +83,7 @@ namespace LabConsumableExpiryTracker.Services
 
             var item = _mapper.Map<Item>(dto);
             var created = await _itemRepository.AddAsync(item, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
             var response = _mapper.Map<ItemDto>(created);
 
             return ServiceResult<ItemDto>.SuccessResult(
@@ -118,6 +119,7 @@ namespace LabConsumableExpiryTracker.Services
                 request.ExpiringSoonDays);
 
             var updated = await _itemRepository.UpdateAsync(item, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
             var response = _mapper.Map<ItemDto>(updated);
 
             return ServiceResult<ItemDto>.SuccessResult(
@@ -130,7 +132,7 @@ namespace LabConsumableExpiryTracker.Services
             CancellationToken ct)
         {
             var deleted = await _itemRepository.DeleteAsync(id, ct);
-
+            await _unitOfWork.SaveChangesAsync(ct);
             return deleted
                 ? ServiceResult<bool>.SuccessResult(
                     true,

@@ -1,8 +1,6 @@
-﻿using FluentValidation;
-using LabConsumableExpiryTracker.Commons.Result;
+﻿using LabConsumableExpiryTracker.Commons.Result;
 using LabConsumableExpiryTracker.DTOs.Auth;
 using LabConsumableExpiryTracker.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LabConsumableExpiryTracker.Controllers;
@@ -30,5 +28,5 @@ public class AuthController : ControllerBase
         return Ok(response);
     }
 
-    
+
 }

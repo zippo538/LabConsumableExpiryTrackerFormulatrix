@@ -13,7 +13,7 @@ namespace LabConsumableExpiryTracker.Commons.Result
             {
                 Success = true,
                 Message = message,
-                Data = data
+                Data = data,
             };
         }
 

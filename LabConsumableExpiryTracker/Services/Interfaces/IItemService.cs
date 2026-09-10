@@ -25,4 +25,4 @@ namespace LabConsumableExpiryTracker.Services.Interfaces
             Guid id,
             CancellationToken ct);
     }
-    }
+}

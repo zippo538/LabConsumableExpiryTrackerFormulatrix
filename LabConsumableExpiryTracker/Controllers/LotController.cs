@@ -62,8 +62,8 @@ public class LotController : ControllerBase
     public async Task<ActionResult<ServiceResult<IEnumerable<LotSummaryDto>>>> GetAllSummary(
     CancellationToken ct = default)
     {
-    var response = await _lotService.GetAllSummary(ct);
-    return Ok(response);
+        var response = await _lotService.GetAllSummary(ct);
+        return Ok(response);
     }
 }
 
