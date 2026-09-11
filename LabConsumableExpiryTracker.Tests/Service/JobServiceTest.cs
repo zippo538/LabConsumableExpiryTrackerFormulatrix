@@ -2,47 +2,114 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using FluentAssertions;
+using LabConsumableExpiryTracker.DTOs.JobDTOs;
 using LabConsumableExpiryTracker.Models;
 using LabConsumableExpiryTracker.Models.Enums;
+using LabConsumableExpiryTracker.Repositories.Interfaces;
+using LabConsumableExpiryTracker.Services;
+using LabConsumableExpiryTracker.Services.Interfaces;
+using Moq;
 
 namespace LabConsumableExpiryTracker.Tests.Service
 {
-    public class JobServiceTest
+    public class JobServiceTests
     {
-        private static readonly DateTimeOffset StartedAt = new(2026, 9, 9, 10, 0, 0, TimeSpan.Zero);
-        [Test]
-        [Category("Feature04")]
-        public void Start_from_draft_sets_in_progress_and_started_at()
+        private Mock<IJobRepository> _repository;
+        private Mock<IUnitOfWork> _unitOfWork;
+        private Mock<IMapper> _mapper;
+
+        private JobService _service;
+
+
+        [SetUp]
+        public void Setup()
         {
-            var job = new Job(Guid.NewGuid(), "JOB-001");
-            job.Start(StartedAt);
-            Assert.That(job.Status, Is.EqualTo(JobStatus.InProgress));
-            Assert.That(job.StartedAt, Is.EqualTo(StartedAt));
-            Assert.That(job.CompletedAt, Is.Null);
+            _repository = new();
+            _unitOfWork = new();
+            _mapper = new();
+
+
+            _service = new JobService(
+                _repository.Object,
+                TimeProvider.System,
+                _mapper.Object,
+                _unitOfWork.Object
+            );
+        }
+
+
+
+        [Test]
+        public async Task CreateAsync_Should_Return_Error_When_JobNumber_Empty()
+        {
+            var dto = new CreateJobDto
+            {
+                JobNumber = ""
+            };
+
+            var result = await _service.CreateAsync(dto);
+            result.Success.Should()
+                .BeFalse();
+            result.Message.Should()
+                .Contain("required");
         }
         [Test]
-        [Category("Feature04")]
-        public void Complete_from_in_progress_sets_completed_and_completed_at()
+        public async Task CreateAsync_Should_Return_Error_When_JobNumber_Exists()
         {
-            var job = new Job(Guid.NewGuid(), "JOB-001"); job.Start(StartedAt);
-            var completedAt = StartedAt.AddHours(2); job.Complete(completedAt);
-            Assert.That(job.Status, Is.EqualTo(JobStatus.Completed));
-            Assert.That(job.StartedAt, Is.EqualTo(StartedAt));
-            Assert.That(job.CompletedAt, Is.EqualTo(completedAt));
+            var dto = new CreateJobDto
+            {
+                JobNumber = "JOB-001"
+            };
+            _repository
+                .Setup(x => x.ExistsByJobNumberAsync(
+                    "JOB-001",
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+            var result = await _service.CreateAsync(dto);
+            result.Success.Should()
+                .BeFalse();
+            result.Message.Should()
+                .Contain("already exists");
         }
         [Test]
-        [Category("Feature04")]
-        public void Start_cannot_be_called_twice()
+        public async Task CreateAsync_Should_Create_New_Job()
         {
-            var job = new Job(Guid.NewGuid(), "JOB-001"); job.Start(StartedAt);
-            Assert.That(() => job.Start(StartedAt.AddMinutes(1)), Throws.TypeOf<InvalidOperationException>());
-        }
-        [Test]
-        [Category("Feature04")]
-        public void Complete_requires_in_progress_status()
-        {
-            var job = new Job(Guid.NewGuid(), "JOB-001");
-            Assert.That(() => job.Complete(StartedAt), Throws.TypeOf<InvalidOperationException>());
+            var dto = new CreateJobDto
+            {
+                JobNumber = "JOB-001"
+            };
+            var job =
+                new Job(
+                    Guid.NewGuid(),
+                    "JOB-001");
+            _repository
+                .Setup(x => x.ExistsByJobNumberAsync(
+                    "JOB-001",
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+            _repository
+                .Setup(x => x.AddAsync(
+                    It.IsAny<Job>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(job);
+            _mapper
+                .Setup(x => x.Map<JobDto>(
+                    It.IsAny<Job>()))
+                .Returns(new JobDto
+                {
+                    Id = job.Id,
+                    JobNumber = "JOB-001"
+                });
+            var result =
+                await _service.CreateAsync(dto);
+            result.Success.Should()
+                .BeTrue();
+            _unitOfWork.Verify(
+                x => x.SaveChangesAsync(
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
         }
     }
 }

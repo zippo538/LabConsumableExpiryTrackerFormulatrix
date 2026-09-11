@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace LabConsumableExpiryTracker.Tests;
 
-public class JobLifecycleTest
+public class JobLifecycleTests
 {
     private static readonly DateTimeOffset StartedAt = new(2026, 9, 9, 10, 0, 0, TimeSpan.Zero);
     [Test]

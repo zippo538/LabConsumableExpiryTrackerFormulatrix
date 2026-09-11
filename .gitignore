@@ -5,3 +5,4 @@ riderModule.iml
 /_ReSharper.Caches/
 .idea/
 
+LabConsumableExpiryTracker.Tests/appsettings.Development.json
